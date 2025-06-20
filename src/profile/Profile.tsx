@@ -1,23 +1,118 @@
 import React, { useEffect, useState } from "react";
 import ApiConfig from "../lib/ApiConfig";
+import { useNavigate } from "react-router-dom";
+import Notification from "../common/components/Notification";
+import { isAxiosError } from "axios";
+import {
+  Phone,
+  FileText,
+  User,
+  Calendar,
+  CheckCircle,
+  UserPlus,
+  Edit3,
+  Key,
+  MapPin,
+  LogOut,
+  AlertTriangle,
+  X,
+} from "lucide-react";
 
 interface UserProfile {
   id: number;
   name: string;
   email: string;
   role?: string;
-  phone?: string;
-  bio?: string;
-  avatar?: string;
-  gender?: string;
-  birth_date?: string;
-  // Tambahkan field lain jika ada
+  phone?: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  gender?: string | null;
+  birth_date?: string | null;
+  email_verified_at?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
+interface ProfileFormData {
+  name: string;
+  phone: string;
+  bio: string;
+  gender: string;
+  birth_date: string;
+}
+
+// Skeleton Components
+const ProfileSkeleton = () => (
+  <div className="min-h-screen bg-gray-50 pt-32 pb-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Header Skeleton */}
+        <div className="bg-gradient-to-br from-blue-600 via-blue-600 to-blue-900 p-8">
+          <div className="flex items-center space-x-6">
+            <div className="w-24 h-24 rounded-full bg-white/20 animate-pulse"></div>
+            <div className="space-y-3">
+              <div className="h-8 w-48 bg-white/20 rounded-lg animate-pulse"></div>
+              <div className="h-5 w-64 bg-white/20 rounded-lg animate-pulse"></div>
+              <div className="h-6 w-20 bg-white/20 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Profile Info Skeleton */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-7 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-50 p-4 rounded-xl border border-gray-100"
+                  >
+                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+              <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+
+            {/* Settings Skeleton */}
+            <div className="space-y-6">
+              <div className="h-7 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-12 bg-gray-100 rounded-xl animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const Profile: React.FC = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<ProfileFormData>({
+    name: "",
+    phone: "",
+    bio: "",
+    gender: "",
+    birth_date: "",
+  });
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,41 +120,156 @@ const Profile: React.FC = () => {
       setError(null);
       try {
         const token = localStorage.getItem("access_token");
-        const response = await ApiConfig.get("/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data);
-      } catch {
-        setError("Gagal memuat data profile.");
+        if (!token) {
+          setError("Autentikasi diperlukan.");
+          navigate("/login");
+          return;
+        }
+
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const [userResponse, profileDetailResponse] = await Promise.all([
+          ApiConfig.get("/me", { headers }),
+          ApiConfig.get("/profile-detail", { headers }).catch((error) => {
+            if (error.response && error.response.status === 404) {
+              return { data: {} };
+            }
+            throw error;
+          }),
+        ]);
+
+        const combinedUser: UserProfile = {
+          ...userResponse.data,
+          ...profileDetailResponse.data,
+        };
+
+        setUser(combinedUser);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError("Gagal memuat data profil.");
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, []);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user_data");
+    navigate("/login");
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const handleOpenModal = () => {
+    if (!user) return;
+    setFormData({
+      name: user.name || "",
+      phone: user.phone || "",
+      bio: user.bio || "",
+      gender: user.gender || "Laki-laki",
+      birth_date: user.birth_date ? user.birth_date.split("T")[0] : "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleFormChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNotification(null);
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await ApiConfig.post("/profile-detail", formData, {
+        headers,
+      });
+
+      const updatedDetails = response.data.user || response.data;
+      setUser(
+        (prevUser) => ({ ...prevUser, ...updatedDetails } as UserProfile)
+      );
+
+      handleCloseModal();
+      setNotification({
+        message: "Profil berhasil diperbarui!",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Failed to update profile", err);
+      let message = "Gagal memperbarui profil. Coba lagi.";
+      if (isAxiosError(err) && err.response?.data?.message) {
+        message = err.response.data.message;
+      }
+      setNotification({
+        message,
+        type: "error",
+      });
+    }
+  };
+
+  const profileDataToDisplay = user
+    ? [
+        { label: "Telepon", value: user.phone, icon: Phone },
+        { label: "Bio", value: user.bio, icon: FileText },
+        { label: "Jenis Kelamin", value: user.gender, icon: User },
+        {
+          label: "Tanggal Lahir",
+          value: formatDate(user.birth_date),
+          icon: Calendar,
+        },
+        {
+          label: "Email Terverifikasi",
+          value: formatDate(user.email_verified_at),
+          icon: CheckCircle,
+        },
+        {
+          label: "Akun Dibuat",
+          value: formatDate(user.created_at),
+          icon: UserPlus,
+        },
+      ]
+    : [];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full animate-pulse">
-          <div className="h-8 w-32 bg-gray-200 rounded mx-auto mb-4"></div>
-          <div className="h-4 w-48 bg-gray-200 rounded mx-auto"></div>
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Profile</h2>
-          <div className="text-red-500 bg-red-50 p-4 rounded-lg">
-            {error || "User data not found."}
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Terjadi Kesalahan
+          </h3>
+          <p className="text-gray-600 mb-6">
+            {error || "User tidak ditemukan."}
+          </p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Coba Lagi
           </button>
@@ -69,20 +279,32 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 pt-32">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8 text-white">
-            <div className="flex flex-col sm:flex-row items-center">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white/20 flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 sm:mb-0 sm:mr-6">
-                {user.name?.charAt(0) || "?"}
+    <div className="min-h-screen bg-gray-50 pt-32 pb-12">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Modern Header */}
+          <div className="bg-gradient-to-br from-blue-600 via-blue-600 to-blue-900 p-8">
+            <div className="flex items-center space-x-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl font-bold text-white border-2 border-white/30">
+                  {user.name?.charAt(0).toUpperCase() || "?"}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl font-bold">{user.name}</h1>
-                <p className="text-blue-100">{user.email}</p>
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-white mb-1">
+                  {user.name}
+                </h1>
+                <p className="text-blue-100 text-lg mb-2">{user.email}</p>
                 {user.role && (
-                  <span className="inline-block mt-2 bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-white border border-white/30">
                     {user.role}
                   </span>
                 )}
@@ -90,175 +312,239 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          {/* Profile Content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 sm:p-8">
-            {/* Personal Info */}
-            <div className="md:col-span-2 space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
-                Informasi Pribadi
-              </h2>
+          <div className="p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Profile Information */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Informasi Pribadi
+                  </h2>
+                  <button
+                    onClick={handleOpenModal}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {Object.entries(user)
-                  .filter(
-                    ([key]) =>
-                      !["id", "name", "email", "role", "avatar"].includes(key)
-                  )
-                  .map(([key, value]) => (
-                    <div key={key} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {key.replace(/_/g, " ")}
-                      </h3>
-                      <p className="mt-1 text-gray-800">
-                        {value || <span className="text-gray-400">-</span>}
-                      </p>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {profileDataToDisplay.map(
+                    ({ label, value, icon: IconComponent }) => (
+                      <div
+                        key={label}
+                        className="bg-gray-50 p-4 rounded-xl border border-gray-100 hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <IconComponent className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-sm font-medium text-gray-500 mb-1">
+                              {label}
+                            </h3>
+                            <p className="text-gray-900 font-medium">
+                              {value || (
+                                <span className="text-gray-400">
+                                  Belum diisi
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
 
-              <div className="pt-4">
-                <button className="flex items-center justify-center px-5 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Edit Profil
-                </button>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
-                Pengaturan
-              </h2>
-
-              <div className="space-y-4">
-                <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                  <div className="flex items-center">
-                    <div className="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+              {/* Settings Panel */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900">Pengaturan</h2>
+                <div className="space-y-3">
+                  <button className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <Key className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <span className="font-medium text-gray-900">
+                        Ganti Password
+                      </span>
                     </div>
-                    <span>Ganti Password</span>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
 
-                <button className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                  <div className="flex items-center">
-                    <div className="p-2 rounded-full bg-purple-100 text-purple-600 mr-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                  <button
+                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group"
+                    onClick={() => navigate("/address")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                        <MapPin className="w-5 h-5 text-green-600" />
+                      </div>
+                      <span className="font-medium text-gray-900">
+                        Kelola Alamat
+                      </span>
                     </div>
-                    <span>Edit Biodata</span>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
 
-                <button
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                  onClick={() => (window.location.href = "/address")}
-                >
-                  <div className="flex items-center">
-                    <div className="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span>Kelola Alamat</span>
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center space-x-2 p-4 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Keluar</span>
+                    </button>
                   </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="pt-4 border-t">
-                <button className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Keluar
-                </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modern Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Edit Profil
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+
+            <form
+              onSubmit={handleFormSubmit}
+              className="overflow-y-auto max-h-[calc(90vh-120px)]"
+            >
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nama
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Masukkan nama lengkap"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Telepon
+                  </label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleFormChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Masukkan nomor telepon"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Bio
+                  </label>
+                  <textarea
+                    name="bio"
+                    rows={4}
+                    value={formData.bio}
+                    onChange={handleFormChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Ceritakan tentang diri Anda..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tanggal Lahir
+                    </label>
+                    <input
+                      type="date"
+                      name="birth_date"
+                      value={formData.birth_date}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Jenis Kelamin
+                    </label>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    >
+                      <option value="Laki-laki">Laki-laki</option>
+                      <option value="Perempuan">Perempuan</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-6 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

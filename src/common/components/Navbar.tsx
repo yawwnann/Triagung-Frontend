@@ -1,12 +1,7 @@
 "use client";
 import { cn } from "../../lib/utils";
 import { Menu, X, User as UserIcon, Sparkles } from "lucide-react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import React, { useRef, useState } from "react";
 import { Link, useNavigate, type NavigateFunction } from "react-router-dom";
 
@@ -56,31 +51,18 @@ export const Navbar = ({
   currentUser,
 }: NavbarProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const [visible, setVisible] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedMobileItem, setSelectedMobileItem] = useState<number>(0);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 100) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  });
-
   return (
     <motion.div
       ref={ref}
-      className={cn("fixed inset-x-0 top-5 z-40 w-full", className)}
+      className={cn("fixed inset-x-0 z-40 w-full", className)}
     >
       {/* Desktop Navbar */}
-      <NavBody visible={visible} className="px-10">
+      <NavBody visible={true} className="px-10">
         <NavbarLogo />
         <NavItems
           items={[
@@ -173,7 +155,7 @@ export const Navbar = ({
       </NavBody>
 
       {/* Mobile Navbar */}
-      <MobileNav visible={visible}>
+      <MobileNav visible={true}>
         <MobileNavHeader>
           <NavbarLogo />
           <div className="flex items-center gap-4">
