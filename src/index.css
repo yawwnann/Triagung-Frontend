@@ -1,4 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
+
 @import "tailwindcss";
+@tailwind utilities;
+
+body {
+  font-family: "Montserrat", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb; /* Latar belakang abu-abu muda */
+}
+
 body,
 #root {
   margin: 0 !important;

@@ -19,6 +19,7 @@ interface NavbarProps {
   isAuthenticated: boolean;
   onLogout: (navigateFunc: NavigateFunction) => void;
   currentUser?: { name?: string } | null;
+  itemCount: number;
 }
 
 interface NavBodyProps {
@@ -58,6 +59,7 @@ export const Navbar = ({
   isAuthenticated,
   onLogout,
   currentUser,
+  itemCount,
 }: NavbarProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -81,7 +83,7 @@ export const Navbar = ({
     {
       name: "Pesanan Saya",
       icon: ShoppingBag,
-      link: "/orders",
+      link: "/profile/orders",
       description: "Riwayat pesanan",
     },
   ];
@@ -101,7 +103,7 @@ export const Navbar = ({
   return (
     <motion.div
       ref={ref}
-      className={cn("fixed inset-x-0 z-40 w-full", className)}
+      className={cn("fixed top-0 inset-x-0 z-40 w-full", className)}
     >
       {/* Desktop Navbar */}
       <NavBody visible={!isMobileMenuOpen} className="px-10">
@@ -179,8 +181,13 @@ export const Navbar = ({
                             <item.icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900 group-hover:text-blue-900">
-                              {item.name}
+                            <div className="font-medium text-gray-900 group-hover:text-blue-900 flex items-center">
+                              <span>{item.name}</span>
+                              {item.name === "Keranjang" && itemCount > 0 && (
+                                <span className="ml-2 bg-blue-600 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center">
+                                  {itemCount}
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-500 group-hover:text-blue-600">
                               {item.description}
@@ -294,8 +301,13 @@ export const Navbar = ({
                               <item.icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
                             </div>
                             <div className="flex-1">
-                              <div className="font-medium text-sm text-gray-900 group-hover:text-blue-900">
-                                {item.name}
+                              <div className="font-medium text-sm text-gray-900 group-hover:text-blue-900 flex items-center">
+                                <span>{item.name}</span>
+                                {item.name === "Keranjang" && itemCount > 0 && (
+                                  <span className="ml-2 bg-blue-600 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center">
+                                    {itemCount}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-xs text-gray-500 group-hover:text-blue-600">
                                 {item.description}

@@ -1,25 +1,26 @@
 import React from "react";
-import FooterSection from "../../common/components/FooterSection";
-import WhatsappButton from "../../home/components/WhatsappButton";
 import ProductHeroSection from "../components/ProductHeroSection";
 import ProductCatalog from "../components/ProductCatalog";
+import ShoppingCartIcon from "../components/ShoppingCartIcon";
+import { Toaster } from "sonner";
 
-interface ProductViewProps{
-    isAuthenticated : boolean;
+interface ProductViewProps {
+  isAuthenticated: boolean;
+  itemCount: number;
 }
 
-
-const ProductView: React.FC<ProductViewProps> = ({ isAuthenticated }) => {
-    return (
-        <>
-        <div className="font-Montserrat">
-            <ProductHeroSection />
-            <ProductCatalog isAuthenticated = {isAuthenticated} />
-            <FooterSection />
-            <WhatsappButton />
-        </div>
-        </>
-    )
-}
+const ProductView: React.FC<ProductViewProps> = ({
+  isAuthenticated,
+  itemCount,
+}) => {
+  return (
+    <div>
+      <Toaster richColors position="top-right" />
+      <ProductHeroSection />
+      <ProductCatalog isAuthenticated={isAuthenticated} />
+      <ShoppingCartIcon itemCount={itemCount} />
+    </div>
+  );
+};
 
 export default ProductView;

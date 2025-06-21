@@ -9,13 +9,17 @@ import {
 } from "lucide-react";
 import ApiConfig from "../lib/ApiConfig";
 
+interface LoginProps {
+  onLoginSuccess: () => void;
+}
+
 interface LoginFormData {
   email: string;
   password: string;
   remember: boolean;
 }
 
-const Login = () => {
+const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -49,7 +53,7 @@ const Login = () => {
       if (token) {
         localStorage.setItem("access_token", token);
         localStorage.setItem("user_data", JSON.stringify(data.user));
-        window.location.href = "/";
+        onLoginSuccess();
       } else {
         setError("Login gagal. Token tidak ditemukan.");
       }
