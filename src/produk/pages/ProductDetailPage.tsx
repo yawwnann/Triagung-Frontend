@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,17 +8,37 @@ import {
   Heart,
   Share2,
   Star,
-  Truck,
-  Shield,
-  RefreshCw,
   Minus,
   Plus,
   ZoomIn,
   X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ApiConfig from "../../lib/ApiConfig";
 
-import { products } from "../../data/ProductsData";
+// Interface matching the API response
+interface KategoriProduk {
+  id: number;
+  nama: string;
+  slug: string;
+}
+
+interface ProductImage {
+  id: number;
+  url: string;
+}
+
+interface Product {
+  id: number;
+  nama: string;
+  slug: string;
+  deskripsi: string;
+  harga: number;
+  stok: number;
+  gambar: string;
+  kategori_produk: KategoriProduk;
+  images?: ProductImage[]; // Optional array of additional images
+}
 
 interface ProductDetailPageProps {
   isAuthenticated: boolean;
@@ -30,41 +50,104 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("description");
+  const [activeTab, setActiveTab] = useState("Deskripsi");
 
-  if (!id) {
+  const tabs = ["Deskripsi", "Ulasan"];
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setError("ID produk tidak valid.");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await ApiConfig.get(`/produks/${id}`);
+        setProduct(response.data);
+        if (response.data.gambar) {
+          setSelectedImage(response.data.gambar);
+        }
+      } catch (err) {
+        setError("Gagal memuat data produk atau produk tidak ditemukan.");
+        console.error("Error fetching product:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
     return (
-      <div className="py-10 px-4 md:px-8 lg:px-16">
-        <Link
-          to="/products"
-          className="inline-flex items-center text-[#0260FD99] hover:text-blue-700 transition-colors duration-300 mb-4"
-        >
-          <ArrowLeft className="mr-2" size={20} /> Kembali ke Katalog
-        </Link>
-        <div className="text-center text-gray-600 py-20">
-          ID Produk tidak valid atau tidak ditemukan di URL.
+      <div className="bg-gray-50 font-sans pt-28 pb-24 animate-pulse">
+        <div className="container mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              {/* Image Gallery Skeleton */}
+              <div className="p-4 sm:p-6">
+                <div className="space-y-4">
+                  <div className="bg-gray-200 w-full aspect-square rounded-xl"></div>
+                  <div className="grid grid-cols-5 gap-3">
+                    <div className="bg-gray-200 aspect-square rounded-lg"></div>
+                    <div className="bg-gray-200 aspect-square rounded-lg"></div>
+                    <div className="bg-gray-200 aspect-square rounded-lg"></div>
+                    <div className="bg-gray-200 aspect-square rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Product Info Skeleton */}
+              <div className="p-6 sm:p-8 lg:p-10 border-l border-gray-100 flex flex-col">
+                <div className="flex-grow space-y-6">
+                  <div className="h-10 bg-gray-200 rounded-lg w-3/4"></div>
+                  <div className="h-5 bg-gray-200 rounded-lg w-1/2"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded-lg w-full"></div>
+                    <div className="h-4 bg-gray-200 rounded-lg w-5/6"></div>
+                  </div>
+                  <div className="bg-gray-100 rounded-lg p-4 h-24"></div>
+                  <div className="h-12 bg-gray-200 rounded-lg w-1/3"></div>
+                </div>
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <div className="h-14 bg-gray-300 rounded-xl w-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  const productId = parseInt(id, 10);
-  const product = products.find((p) => p.id === productId);
-
-  if (!product) {
+  if (error || !product) {
     return (
-      <div className="py-10 px-4 md:px-8 lg:px-16">
-        <Link
-          to="/products"
-          className="inline-flex items-center text-[#0260FD99] hover:text-blue-700 transition-colors duration-300 mb-4"
-        >
-          <ArrowLeft className="mr-2" size={20} /> Kembali ke Katalog
-        </Link>
-        <div className="text-center text-gray-600 py-20">
-          Produk tidak ditemukan.
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-700 mb-4">
+            Produk Tidak Ditemukan
+          </p>
+          <p className="text-gray-500 mb-8">
+            {error || "Produk yang Anda cari tidak ada atau telah dihapus."}
+          </p>
+          <Link
+            to="/products"
+            className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <ArrowLeft className="mr-2" size={20} /> Kembali ke Katalog
+          </Link>
         </div>
       </div>
     );
@@ -79,14 +162,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       alert("Anda harus login untuk menambahkan produk ke keranjang!");
       return;
     }
-    console.log(
-      `Produk "${product.name}" sebanyak ${quantity} ditambahkan ke keranjang.`
-    );
-    alert(`Produk "${product.name}" berhasil ditambahkan ke keranjang!`);
+    console.log(`Produk "${product.nama}" sebanyak ${quantity} ditambahkan.`);
+    alert(`Produk "${product.nama}" berhasil ditambahkan!`);
   };
 
   const handleQuantityChange = (type: "increase" | "decrease") => {
-    if (type === "increase") {
+    if (type === "increase" && quantity < product.stok) {
       setQuantity((prev) => prev + 1);
     } else if (type === "decrease" && quantity > 1) {
       setQuantity((prev) => prev - 1);
@@ -96,8 +177,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: product.name,
-        text: product.description,
+        title: product.nama,
+        text: product.deskripsi,
         url: window.location.href,
       });
     } else {
@@ -106,23 +187,19 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     }
   };
 
-  const renderStars = (rating: number) => {
+  const renderStars = (ratingValue: number) => {
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
+    const fullStars = Math.floor(ratingValue);
+    for (let i = 0; i < fullStars; i++)
       stars.push(
         <Star
           fill="currentColor"
-          key={i}
+          key={`full-${i}`}
           className="text-yellow-400"
           size={16}
         />
       );
-    }
-
-    if (hasHalfStar) {
+    if (ratingValue % 1 !== 0)
       stars.push(
         <Star
           fill="currentColor"
@@ -131,15 +208,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           size={16}
         />
       );
-    }
-
-    const remainingStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < remainingStars; i++) {
+    const remaining = 5 - Math.ceil(ratingValue);
+    for (let i = 0; i < remaining; i++)
       stars.push(
         <Star key={`empty-${i}`} className="text-gray-300" size={16} />
       );
-    }
-
     return stars;
   };
 
@@ -149,237 +222,217 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="py-10 px-4 md:px-8 lg:px-16 bg-gradient-to-r from-[#002C7400] to-[#0260FD4D] font-Montserrat min-h-screen"
+      className="bg-gray-50  pt-28 pb-24"
     >
-      {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-gray-500 mb-6">
-        <Link to="/" className="hover:text-[#0260FD99]">
-          Home
-        </Link>
-        <span className="mx-2">/</span>
-        <Link to="/products" className="hover:text-[#0260FD99]">
-          Produk
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-gray-800">{product.name}</span>
-      </div>
+      <div className="container mx-auto px-4">
+        {/* Breadcrumb */}
+        <div className="flex items-center text-sm text-gray-500 mb-6">
+          <Link to="/" className="hover:text-[#0260FD99]">
+            Home
+          </Link>
+          <span className="mx-2">/</span>
+          <Link to="/products" className="hover:text-[#0260FD99]">
+            Produk
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-800">{product.nama}</span>
+        </div>
 
-      <Link
-        to="/products"
-        className="inline-flex items-center text-[#0260FD99] hover:text-blue-700 transition-colors duration-300 mb-8"
-      >
-        <ArrowLeft className="mr-2" size={20} /> Kembali ke Katalog
-      </Link>
-
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-          {/* Gambar Produk */}
-          <div className="space-y-4">
-            <div className="relative shadow-md group">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 border-4 rounded-2xl border-[#0260FD99]"
-              />
-              <button
-                onClick={() => setShowImageModal(true)}
-                className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              >
-                <ZoomIn className="text-gray-700" size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Detail Produk */}
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {product.name}
-                </h1>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setIsWishlisted(!isWishlisted)}
-                    className={`p-2 rounded-full transition-colors ${
-                      isWishlisted
-                        ? "bg-red-100 text-red-500"
-                        : "bg-gray-100 text-gray-400"
-                    }`}
-                  >
-                    <Heart
-                      fill={isWishlisted ? "currentColor" : "none"}
-                      size={20}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Image Gallery */}
+            <div className="p-4 sm:p-6">
+              <div className="space-y-4">
+                {selectedImage && (
+                  <div className="relative group overflow-hidden rounded-xl shadow-inner-strong">
+                    <img
+                      src={selectedImage}
+                      alt={product.nama}
+                      className="w-full h-full aspect-square object-cover transition-transform duration-300"
                     />
-                  </button>
+                    <button
+                      onClick={() => setShowImageModal(true)}
+                      className="absolute top-4 right-4 bg-white/70 backdrop-blur-sm rounded-full p-3 text-gray-800 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-white"
+                    >
+                      <ZoomIn size={20} />
+                    </button>
+                  </div>
+                )}
+                <div className="grid grid-cols-5 gap-3">
                   <button
-                    onClick={handleShare}
-                    className="p-2 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 transition-colors"
+                    onClick={() => setSelectedImage(product.gambar)}
+                    className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 hover:scale-105"
                   >
-                    <Share2 size={20} />
+                    <img
+                      src={product.gambar}
+                      alt="thumbnail utama"
+                      className="w-full h-full object-cover"
+                    />
+                    {selectedImage === product.gambar && (
+                      <div className="absolute inset-0 border-2 border-blue-500 rounded-lg" />
+                    )}
                   </button>
+                  {product.images?.map((image) => (
+                    <button
+                      key={image.id}
+                      onClick={() => setSelectedImage(image.url)}
+                      className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 hover:scale-105"
+                    >
+                      <img
+                        src={image.url}
+                        alt={`thumbnail ${image.id}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {selectedImage === image.url && (
+                        <div className="absolute inset-0 border-2 border-blue-500 rounded-lg" />
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center space-x-1">
-                  {renderStars(rating)}
+            {/* Product Info */}
+            <div className="p-6 sm:p-8 lg:p-10 border-l border-gray-100 flex flex-col">
+              <div className="flex-grow">
+                <div className="flex items-start justify-between mb-2">
+                  <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+                    {product.nama}
+                  </h1>
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                    <button
+                      onClick={() => setIsWishlisted(!isWishlisted)}
+                      className={`p-2.5 rounded-full transition-colors duration-200 ${
+                        isWishlisted
+                          ? "bg-red-100 text-red-500"
+                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                      }`}
+                    >
+                      <Heart
+                        fill={isWishlisted ? "currentColor" : "none"}
+                        size={20}
+                      />
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="p-2.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                      <Share2 size={20} />
+                    </button>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-600">
-                  ({reviewCount} ulasan)
-                </span>
-                <div className="flex items-center">
-                  <Tag className="text-gray-400 mr-1" size={14} />
-                  <span className="text-sm text-gray-600">
-                    {product.category}
+
+                <div className="flex items-center gap-4 mb-5 text-sm">
+                  <div className="flex items-center gap-1">
+                    {renderStars(rating)}
+                  </div>
+                  <span className="text-gray-500">({reviewCount} ulasan)</span>
+                  <span className="flex items-center gap-1.5 bg-blue-50 text-blue-600 font-semibold px-2.5 py-1 rounded-full">
+                    <Tag size={14} /> {product.kategori_produk.nama}
                   </span>
                 </div>
+
+                <div className="my-6">
+                  <p className="text-gray-500 text-base">{product.deskripsi}</p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 my-6">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <span className="text-lg text-gray-500">Harga</span>
+                      <p className="text-4xl font-bold text-blue-600">
+                        Rp {product.harga.toLocaleString("id-ID")}
+                      </p>
+                    </div>
+                    <p className="text-base text-green-600 font-medium">
+                      Stok: {product.stok}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-base font-medium text-gray-800">
+                    Jumlah:
+                  </span>
+                  <div className="flex items-center border border-gray-200 rounded-lg">
+                    <button
+                      onClick={() => handleQuantityChange("decrease")}
+                      className="px-3.5 py-3 text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={quantity <= 1}
+                    >
+                      {" "}
+                      <Minus size={16} />{" "}
+                    </button>
+                    <span className="px-5 text-lg font-semibold text-gray-900">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => handleQuantityChange("increase")}
+                      className="px-3.5 py-3 text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={quantity >= product.stok}
+                    >
+                      {" "}
+                      <Plus size={16} />{" "}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="border-t border-b border-gray-200 py-4">
-              <p className="text-4xl font-bold text-black">{product.price}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Harga sudah termasuk PPN
-              </p>
-            </div>
-
-            {/* Quantity Selector */}
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700 font-medium">Jumlah:</span>
-              <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="mt-8 pt-6 border-t border-gray-100">
                 <button
-                  onClick={() => handleQuantityChange("decrease")}
-                  className="p-2 hover:bg-gray-100 transition-colors"
-                  disabled={quantity <= 1}
+                  onClick={handleAddToCart}
+                  className="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-blue-500/30 hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  <Minus size={16} />
+                  <ShoppingCart className="mr-3" size={20} />
+                  Tambah ke Keranjang
                 </button>
-                <span className="px-4 py-2 font-medium">{quantity}</span>
-                <button
-                  onClick={() => handleQuantityChange("increase")}
-                  className="p-2 hover:bg-gray-100 transition-colors"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button
-                onClick={handleAddToCart}
-                className="w-full bg-[#2e74ee] hover:bg-[#0260FD] text-white font-semibold py-4 px-6 rounded-lg shadow-md transition-colors duration-300 flex items-center justify-center gap-2"
-              >
-                <ShoppingCart size={20} />
-                Tambah ke Keranjang
-              </button>
-              <button className="w-full bg-[#2e74ee] hover:bg-[#0260FD] text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-300">
-                Beli Sekarang
-              </button>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <Truck className="mx-auto mb-2 text-blue-500" size={24} />
-                <p className="text-xs text-gray-600">Gratis Ongkir</p>
-              </div>
-              <div className="text-center">
-                <Shield className="mx-auto mb-2 text-blue-500" size={24} />
-                <p className="text-xs text-gray-600">Garansi Resmi</p>
-              </div>
-              <div className="text-center">
-                <RefreshCw className="mx-auto mb-2 text-blue-500" size={24} />
-                <p className="text-xs text-gray-600">30 Hari Retur</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="border-t border-gray-200">
-          <div className="flex border-b border-gray-200">
-            {["description", "details", "reviews"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                {tab === "description" && "Deskripsi"}
-                {tab === "details" && "Detail Produk"}
-                {tab === "reviews" && "Ulasan"}
-              </button>
-            ))}
+        {/* Tabs Section */}
+        <div className="mt-12 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-2 sm:space-x-4">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`${
+                    activeTab === tab
+                      ? "text-blue-600"
+                      : "text-gray-500 hover:text-gray-800"
+                  } relative rounded-t-lg py-3 px-4 sm:px-6 text-sm sm:text-base font-medium transition-colors`}
+                >
+                  {tab === "Ulasan" ? `${tab} (${reviewCount})` : tab}
+                  {activeTab === tab && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+                      layoutId="underline"
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
           </div>
-
-          <div className="p-8">
-            {activeTab === "description" && (
-              <div className="prose max-w-none">
-                <p className="text-gray-700 leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
-            )}
-
-            {activeTab === "details" && product.details && (
-              <div>
-                <ul className="space-y-2">
-                  {product.details.split(", ").map((detail, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      <span className="text-gray-700">{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-bold">{rating}</span>
-                      <div className="flex">{renderStars(rating)}</div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {reviewCount} ulasan
-                    </p>
-                  </div>
-                  <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                    Tulis Ulasan
-                  </button>
-                </div>
-
-                {/* Sample Reviews */}
-                <div className="space-y-4">
-                  {[1, 2, 3].map((review) => (
-                    <div key={review} className="border-b border-gray-200 pb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                            U{review}
-                          </div>
-                          <span className="font-medium">User {review}</span>
-                          <div className="flex">{renderStars(5)}</div>
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          2 hari lalu
-                        </span>
-                      </div>
-                      <p className="text-gray-700">
-                        Produk sangat bagus, sesuai dengan deskripsi. Pengiriman
-                        cepat dan packaging aman.
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="py-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="prose max-w-none text-gray-600"
+              >
+                {activeTab === "Deskripsi" ? (
+                  <p>{product.deskripsi}</p>
+                ) : (
+                  <p>Belum ada ulasan untuk produk ini.</p>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -391,25 +444,27 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
             onClick={() => setShowImageModal(false)}
           >
-            <div
-              className="relative max-w-4xl max-h-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="max-w-full max-h-full object-contain"
+            {selectedImage && (
+              <motion.img
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                src={selectedImage}
+                alt={product.nama}
+                className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
               />
-              <button
-                onClick={() => setShowImageModal(false)}
-                className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full p-2"
-              >
-                <X size={20} className="text-gray-700" />
-              </button>
-            </div>
+            )}
+            <button
+              className="absolute top-5 right-5 text-white/70 hover:text-white transition-colors"
+              onClick={() => setShowImageModal(false)}
+            >
+              <X size={32} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

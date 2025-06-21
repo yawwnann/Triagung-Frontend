@@ -2,7 +2,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Montserrat", "ui-sans-serif", "system-ui"],
+        sans: ["Roboto", "ui-sans-serif", "system-ui"],
       },
     },
   },
