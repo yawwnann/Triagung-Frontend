@@ -1,6 +1,15 @@
 "use client";
 import { cn } from "../../lib/utils";
-import { Menu, X, User as UserIcon, Sparkles } from "lucide-react";
+import {
+  Menu,
+  X,
+  User as UserIcon,
+  Sparkles,
+  ShoppingCart,
+  ShoppingBag,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useRef, useState } from "react";
 import { Link, useNavigate, type NavigateFunction } from "react-router-dom";
@@ -56,13 +65,46 @@ export const Navbar = ({
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
+  const userMenuItems = [
+    {
+      name: "Profil",
+      icon: UserIcon,
+      link: "/profile",
+      description: "Kelola profil Anda",
+    },
+    {
+      name: "Keranjang",
+      icon: ShoppingCart,
+      link: "/cart",
+      description: "Lihat item keranjang",
+    },
+    {
+      name: "Pesanan Saya",
+      icon: ShoppingBag,
+      link: "/orders",
+      description: "Riwayat pesanan",
+    },
+  ];
+
+  const handleDropdownNavigate = (link: string) => {
+    navigate(link);
+    setIsUserDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    onLogout(navigate);
+    setIsUserDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <motion.div
       ref={ref}
       className={cn("fixed inset-x-0 z-40 w-full", className)}
     >
       {/* Desktop Navbar */}
-      <NavBody visible={true} className="px-10">
+      <NavBody visible={!isMobileMenuOpen} className="px-10">
         <NavbarLogo />
         <NavItems
           items={[
@@ -75,68 +117,99 @@ export const Navbar = ({
           {isAuthenticated ? (
             <div className="relative">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all duration-300 group border border-blue-100/50 shadow-lg hover:shadow-xl"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/80 hover:bg-white border border-gray-200/60 hover:border-gray-300/80  hover:shadow-2xl transition-all duration-300 backdrop-blur-sm group"
                 onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                 type="button"
               >
-                <UserIcon className="w-5 h-5 text-blue-600" />
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                  <UserIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 max-w-24 truncate">
+                  {currentUser?.name || "User"}
+                </span>
+                <motion.div
+                  animate={{ rotate: isUserDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </motion.div>
               </motion.button>
 
-              {/* User Dropdown */}
+              {/* Enhanced Desktop User Dropdown */}
               <AnimatePresence>
                 {isUserDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    initial={{ opacity: 0, scale: 0.95, y: -20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 top-14 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 py-2 z-50"
+                    exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="absolute right-0 top-16 w-80 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden"
                   >
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-pink-500/5" />
-                    <div className="relative z-10">
-                      {currentUser?.name && (
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">
-                            {currentUser.name}
-                          </p>
-                          <p className="text-xs text-gray-500">Profile</p>
+                    {/* Header dengan gradient */}
+                    <div className="relative bg-gradient-to-br from-blue-50 via-blue-50 to-blue-50 px-6 py-5 border-b border-gray-100/80">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-blue-500/5" />
+                      <div className="relative flex items-center gap-4">
+                        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                          <UserIcon className="w-6 h-6 text-white" />
                         </div>
-                      )}
-                      <button
-                        onClick={() => {
-                          navigate("/profile");
-                          setIsUserDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50/80 transition-colors duration-200 flex items-center gap-2"
-                      >
-                        <UserIcon className="w-4 h-4" />
-                        Lihat Profile
-                      </button>
-                      <button
-                        onClick={() => {
-                          onLogout(navigate);
-                          setIsUserDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50/80 transition-colors duration-200 flex items-center gap-2"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-base">
+                            {currentUser?.name || "Pengguna"}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Selamat datang kembali!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-3">
+                      {userMenuItems.map((item) => (
+                        <motion.button
+                          key={item.name}
+                          whileHover={{ scale: 1.02, x: 4 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleDropdownNavigate(item.link)}
+                          className="w-full text-left px-4 py-4 rounded-2xl text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-50 transition-all duration-300 flex items-center gap-4 group mb-1"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                          />
-                        </svg>
-                        Logout
-                      </button>
+                          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 group-hover:bg-white group-hover:shadow-md transition-all duration-300">
+                            <item.icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900 group-hover:text-blue-900">
+                              {item.name}
+                            </div>
+                            <div className="text-xs text-gray-500 group-hover:text-blue-600">
+                              {item.description}
+                            </div>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* Logout Section */}
+                    <div className="border-t border-gray-100 p-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02, x: 4 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-4 rounded-2xl text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300 flex items-center gap-4 group"
+                      >
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 group-hover:bg-white group-hover:shadow-md transition-all duration-300">
+                          <LogOut className="w-5 h-5 text-red-500" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-red-600 group-hover:text-red-700">
+                            Logout
+                          </div>
+                          <div className="text-xs text-red-400 group-hover:text-red-500">
+                            Keluar dari akun
+                          </div>
+                        </div>
+                      </motion.button>
                     </div>
                   </motion.div>
                 )}
@@ -155,7 +228,7 @@ export const Navbar = ({
       </NavBody>
 
       {/* Mobile Navbar */}
-      <MobileNav visible={true}>
+      <MobileNav visible={!isMobileMenuOpen}>
         <MobileNavHeader>
           <NavbarLogo />
           <div className="flex items-center gap-4">
@@ -164,68 +237,94 @@ export const Navbar = ({
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all duration-300 group border border-blue-100/50 shadow-lg hover:shadow-xl"
+                  className="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 hover:bg-white border border-gray-200/60 hover:border-gray-300/80 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                   type="button"
                 >
-                  <UserIcon className="w-4 h-4 text-blue-600" />
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600">
+                    <UserIcon className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <motion.div
+                    animate={{ rotate: isUserDropdownOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown className="w-3 h-3 text-gray-500" />
+                  </motion.div>
                 </motion.button>
 
-                {/* Mobile User Dropdown */}
+                {/* Enhanced Mobile User Dropdown */}
                 <AnimatePresence>
                   {isUserDropdownOpen && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                      initial={{ opacity: 0, scale: 0.95, y: -20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-12 w-44 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 py-2 z-50"
+                      exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="absolute right-0 top-14 w-72 bg-white/95 backdrop-blur-2xl rounded-2xl  border border-gray-200/50 overflow-hidden"
                     >
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-pink-500/5" />
-                      <div className="relative z-10">
-                        {currentUser?.name && (
-                          <div className="px-3 py-2 border-b border-gray-100">
-                            <p className="text-xs font-medium text-gray-900">
-                              {currentUser.name}
-                            </p>
-                            <p className="text-xs text-gray-500">Profile</p>
+                      {/* Mobile Header */}
+                      <div className="relative bg-gradient-to-br from-blue-50 via-blue-50 to-blue-50 px-4 py-4 border-b border-gray-100/80">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-blue-500/5" />
+                        <div className="relative flex items-center gap-3">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                            <UserIcon className="w-5 h-5 text-white" />
                           </div>
-                        )}
-                        <button
-                          onClick={() => {
-                            navigate("/profile");
-                            setIsUserDropdownOpen(false);
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50/80 transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <UserIcon className="w-3 h-3" />
-                          Lihat Profile
-                        </button>
-                        <button
-                          onClick={() => {
-                            onLogout(navigate);
-                            setIsUserDropdownOpen(false);
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50/80 transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 text-sm truncate">
+                              {currentUser?.name || "Pengguna"}
+                            </h3>
+                            <p className="text-xs text-gray-600">
+                              Selamat datang!
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mobile Menu Items */}
+                      <div className="p-2">
+                        {userMenuItems.map((item) => (
+                          <motion.button
+                            key={item.name}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleDropdownNavigate(item.link)}
+                            className="w-full text-left px-3 py-3 rounded-xl text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-50 transition-all duration-300 flex items-center gap-3 group mb-1"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                            />
-                          </svg>
-                          Logout
-                        </button>
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                              <item.icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-sm text-gray-900 group-hover:text-blue-900">
+                                {item.name}
+                              </div>
+                              <div className="text-xs text-gray-500 group-hover:text-blue-600">
+                                {item.description}
+                              </div>
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Mobile Logout */}
+                      <div className="border-t border-gray-100 p-2">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleLogout}
+                          className="w-full text-left px-3 py-3 rounded-xl text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300 flex items-center gap-3 group"
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                            <LogOut className="w-4 h-4 text-red-500" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm text-red-600 group-hover:text-red-700">
+                              Logout
+                            </div>
+                            <div className="text-xs text-red-400 group-hover:text-red-500">
+                              Keluar dari akun
+                            </div>
+                          </div>
+                        </motion.button>
                       </div>
                     </motion.div>
                   )}
@@ -330,7 +429,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-1 text-sm font-medium transition duration-200 lg:flex",
+        "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-3",
         className
       )}
     >
@@ -486,7 +585,7 @@ export const NavbarLogo = () => {
         whileHover={{ scale: 1.05 }}
         className="flex items-center space-x-2"
       >
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-600 flex items-center justify-center shadow-lg">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-600 shadow-md">
           <span className="text-white font-bold text-sm">T</span>
         </div>
         <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent font-bold">

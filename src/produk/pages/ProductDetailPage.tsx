@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ApiConfig from "../../lib/ApiConfig";
+import Notification from "../../common/components/Notification";
+import axios from "axios";
 
 // Interface matching the API response
 interface KategoriProduk {
@@ -59,6 +61,10 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Deskripsi");
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const tabs = ["Deskripsi", "Ulasan"];
 
@@ -156,14 +162,36 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const rating = 4.5;
   const reviewCount = 127;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isAuthenticated) {
       navigate("/login");
-      alert("Anda harus login untuk menambahkan produk ke keranjang!");
       return;
     }
-    console.log(`Produk "${product.nama}" sebanyak ${quantity} ditambahkan.`);
-    alert(`Produk "${product.nama}" berhasil ditambahkan!`);
+    if (!product) return;
+
+    try {
+      const payload = {
+        product_id: product.id,
+        quantity: quantity,
+      };
+
+      await ApiConfig.post("/cart", payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+
+      setNotification({
+        message: "Produk berhasil ditambahkan ke keranjang!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Gagal menambahkan produk ke keranjang:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Detail error Axios:", error.response?.data);
+      }
+      setNotification({ message: "Gagal menambahkan produk.", type: "error" });
+    }
   };
 
   const handleQuantityChange = (type: "increase" | "decrease") => {
@@ -224,6 +252,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       transition={{ duration: 0.5 }}
       className="bg-gray-50  pt-28 pb-24"
     >
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <div className="container mx-auto px-4">
         {/* Breadcrumb */}
         <div className="flex items-center text-sm text-gray-500 mb-6">

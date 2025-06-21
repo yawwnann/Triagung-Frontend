@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
+    "@types/lodash.debounce": "^4.0.9",
     "axios": "^1.10.0",
     "clsx": "^2.1.1",
+    "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.518.0",
     "motion": "^12.18.1",
     "react": "^19.1.0",

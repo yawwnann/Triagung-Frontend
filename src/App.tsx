@@ -11,6 +11,8 @@ import { Navbar } from "./common/components/Navbar";
 import Notification from "./common/components/Notification";
 import Profile from "./profile";
 import AddressPage from "./profile/AddressPage";
+import CartPage from "./cart/CartPage";
+import CheckoutPage from "./checkout/CheckoutPage";
 
 interface User {
   id: number;
@@ -112,6 +114,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/address" element={<AddressPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
     </>
   );
