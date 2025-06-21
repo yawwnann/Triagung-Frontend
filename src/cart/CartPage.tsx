@@ -46,7 +46,7 @@ const CartPage: React.FC = () => {
     return { subtotal: calculatedSubtotal, total: calculatedTotal };
   }, [cart?.items]);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("access_token");
@@ -73,11 +73,11 @@ const CartPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   const handleRemoveItem = async (itemId: number) => {
     // Optimistic UI Update: Remove item from state immediately
@@ -103,23 +103,23 @@ const CartPage: React.FC = () => {
     }
   };
 
-  const debouncedUpdateQuantity = useCallback(
-    debounce(async (itemId: number, quantity: number) => {
-      const originalCart = cart;
-      try {
-        const token = localStorage.getItem("access_token");
-        await ApiConfig.patch(
-          `/cart/${itemId}`,
-          { quantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        // We don't need to refetch anymore as totals are calculated locally
-      } catch (error) {
-        console.error("Failed to update quantity:", error);
-        setCart(originalCart); // Revert on fail
-      }
-    }, 500),
-    [cart]
+  const debouncedUpdateQuantity = useMemo(
+    () =>
+      debounce(async (itemId: number, quantity: number) => {
+        try {
+          const token = localStorage.getItem("access_token");
+          await ApiConfig.patch(
+            `/cart/${itemId}`,
+            { quantity },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          // We don't need to refetch anymore as totals are calculated locally
+        } catch (error) {
+          console.error("Failed to update quantity:", error);
+          fetchCart(); // Revert on fail by refetching
+        }
+      }, 500),
+    [fetchCart]
   );
 
   const handleQuantityChange = (itemId: number, newQuantity: number) => {
