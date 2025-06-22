@@ -43,6 +43,7 @@ const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
+  const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -109,7 +110,7 @@ const CheckoutPage: React.FC = () => {
       const token = localStorage.getItem("access_token");
       const response = await ApiConfig.post(
         "/checkout",
-        { address_id: selectedAddressId },
+        { address_id: selectedAddressId, notes },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -177,6 +178,8 @@ const CheckoutPage: React.FC = () => {
               onSelectAddress={setSelectedAddressId}
               onAddAddress={() => navigate("/profile/AddressPage")}
             />
+            {/* Catatan Pesanan */}
+            <NotesSection notes={notes} onNotesChange={setNotes} />
             {/* Daftar Produk */}
             <ProductList items={cart?.items || []} />
           </section>
@@ -274,6 +277,50 @@ const AddressCard: React.FC<{
       >
         {isSelected && <div className="w-2 h-2 rounded-full bg-white"></div>}
       </div>
+    </div>
+  </div>
+);
+
+const NotesSection: React.FC<{
+  notes: string;
+  onNotesChange: (notes: string) => void;
+}> = ({ notes, onNotesChange }) => (
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div className="flex items-center mb-4">
+      <div className="flex-shrink-0">
+        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg
+            className="w-5 h-5 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div className="ml-3">
+        <h3 className="text-lg font-medium text-gray-900">Catatan Pesanan</h3>
+        <p className="text-sm text-gray-500">
+          Tambahkan catatan khusus untuk pesanan Anda (opsional)
+        </p>
+      </div>
+    </div>
+    <textarea
+      value={notes}
+      onChange={(e) => onNotesChange(e.target.value)}
+      placeholder="Contoh: Tolong dibungkus dengan rapi, atau instruksi pengiriman khusus..."
+      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+      rows={3}
+      maxLength={1000}
+    />
+    <div className="mt-2 text-xs text-gray-500 text-right">
+      {notes.length}/1000 karakter
     </div>
   </div>
 );

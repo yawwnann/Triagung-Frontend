@@ -238,6 +238,17 @@ const OrderDetailPage: React.FC = () => {
               )}
             </div>
 
+            {order.notes && (
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <MessageSquare size={20} /> Catatan Pesanan
+                </h2>
+                <div className="text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
+                  <p className="whitespace-pre-wrap">{order.notes}</p>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
