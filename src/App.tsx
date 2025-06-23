@@ -7,6 +7,7 @@ import ApiConfig from "./lib/ApiConfig";
 // Common Components
 import { Navbar } from "./common/components/Navbar";
 import FooterSection from "./common/components/FooterSection";
+import Notification from "./common/components/Notification";
 
 // Views
 import HomeView from "./home/HomeView";
@@ -32,6 +33,7 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [itemCount, setItemCount] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
 
   const fetchItemCount = async () => {
     const token = localStorage.getItem("access_token");
@@ -64,6 +66,17 @@ const App: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const checkForceLogout = () => {
+      if (window.__forceLogout) {
+        setShowSessionExpired(true);
+        window.__forceLogout = false;
+      }
+    };
+    const interval = setInterval(checkForceLogout, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_data");
@@ -85,6 +98,22 @@ const App: React.FC = () => {
 
   return (
     <>
+      {showSessionExpired && (
+        <Notification
+          message="Ups, sesi anda sudah habis, silakan login lagi."
+          type="error"
+          onClose={() => {
+            setShowSessionExpired(false);
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_data");
+            setIsAuthenticated(false);
+            setCurrentUser(null);
+            setItemCount(0);
+            navigate("/login");
+          }}
+          duration={0}
+        />
+      )}
       <Navbar
         isAuthenticated={isAuthenticated}
         onLogout={handleLogout}

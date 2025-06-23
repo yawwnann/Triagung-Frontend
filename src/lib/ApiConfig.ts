@@ -10,4 +10,22 @@ const ApiConfig = axios.create({
   timeout: 10000, // 10 detik
 });
 
+// Interceptor global untuk auto logout saat token expired
+ApiConfig.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Simpan flag di window agar App.tsx bisa mendeteksi
+      window.__forceLogout = true;
+    }
+    return Promise.reject(error);
+  }
+);
+
+declare global {
+  interface Window {
+    __forceLogout?: boolean;
+  }
+}
+
 export default ApiConfig;

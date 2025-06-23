@@ -6,7 +6,6 @@ import HeroSection from "./components/HeroSection";
 import ProductHighlight from "./components/ProductHighlight";
 import StatsSection from "./components/StatsSection";
 import TestimonialSection from "./components/TestimonialSection";
-import WhatsappButton from "./components/WhatsappButton";
 
 const HomeView: React.FC = () => {
   return (
@@ -15,7 +14,6 @@ const HomeView: React.FC = () => {
       <ProductHighlight />
       <StatsSection />
       <TestimonialSection />
-      <WhatsappButton />
     </div>
   );
 };

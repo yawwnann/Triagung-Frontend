@@ -11,7 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, type NavigateFunction } from "react-router-dom";
 
 interface NavbarProps {
@@ -66,6 +66,34 @@ export const Navbar = ({
   const [selectedMobileItem, setSelectedMobileItem] = useState<number>(0);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Close user dropdown if mobile menu is opened
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsUserDropdownOpen(false);
+    }
+  }, [isMobileMenuOpen]);
+
+  // Close mobile menu if user dropdown is opened
+  useEffect(() => {
+    if (isUserDropdownOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isUserDropdownOpen]);
 
   const userMenuItems = [
     {

@@ -3,6 +3,7 @@ import { motion, easeOut } from "framer-motion";
 import { Search, SlidersHorizontal, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ApiConfig from "../../lib/ApiConfig";
+import Notification from "../../common/components/Notification";
 
 interface Product {
   id: number;
@@ -28,6 +29,11 @@ type ApiProduct = {
   kategori_produk?: { nama: string };
 };
 
+interface Address {
+  id: number;
+  is_default?: boolean;
+}
+
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } },
@@ -36,15 +42,15 @@ const cardVariants = {
 const ProductCard: React.FC<{
   product: Product;
   isAuthenticated: boolean;
-}> = ({ product, isAuthenticated }) => {
+  onAddToCart: (productId: number) => void;
+}> = ({ product, isAuthenticated, onAddToCart }) => {
   const navigate = useNavigate();
   const handleAddToCart = () => {
     if (!isAuthenticated) {
       navigate("/login");
-      alert("Anda harus login untuk menambahkan produk ke keranjang!");
       return;
     }
-    alert(`Produk "${product.name}" berhasil ditambahkan ke keranjang!`);
+    onAddToCart(product.id);
   };
   return (
     <motion.div
@@ -98,6 +104,13 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -128,6 +141,26 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
     };
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchAddresses = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
+        const res = await ApiConfig.get("/addresses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const addresses = res.data;
+        const defaultAddress =
+          addresses.find((a: Address) => a.is_default) || addresses[0];
+        setSelectedAddressId(defaultAddress ? defaultAddress.id : null);
+      } catch (err) {
+        console.error("Gagal memuat alamat user:", err);
+      }
+    };
+    fetchAddresses();
+  }, [isAuthenticated]);
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -165,9 +198,47 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
     },
   };
 
+  const handleAddToCart = async (productId: number) => {
+    if (!isAuthenticated) return;
+    if (!selectedAddressId) {
+      setNotification({
+        message:
+          "Silakan tambahkan atau pilih alamat pengiriman terlebih dahulu.",
+        type: "error",
+      });
+      return;
+    }
+    try {
+      const payload = {
+        product_id: productId,
+        quantity: 1,
+        address_id: selectedAddressId,
+      };
+      await ApiConfig.post("/cart", payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      setNotification({
+        message: "Produk berhasil ditambahkan ke keranjang!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Gagal menambahkan produk ke keranjang:", error);
+      setNotification({ message: "Gagal menambahkan produk.", type: "error" });
+    }
+  };
+
   return (
     <section className="bg-gradient-to-br from-[#FFFDF6] to-[#F5F7F8] py-16 px-4 md:px-10">
       <div className="max-w-7xl mx-auto w-full">
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -265,6 +336,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
                   key={product.id}
                   product={product}
                   isAuthenticated={isAuthenticated}
+                  onAddToCart={handleAddToCart}
                 />
               ))
             ) : (

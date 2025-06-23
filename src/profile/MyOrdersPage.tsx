@@ -110,14 +110,45 @@ const MyOrdersPage: React.FC = () => {
           color: "text-green-600",
         };
       case "cancelled":
+      case "cancel":
         return {
           text: "Dibatalkan",
           icon: <XCircle className="h-4 w-4" />,
           color: "text-red-600",
         };
+      case "settlement":
+        return {
+          text: "Lunas",
+          icon: <CheckCircle2 className="h-4 w-4" />,
+          color: "text-green-700",
+        };
+      case "expire":
+        return {
+          text: "Kedaluwarsa",
+          icon: <AlertCircle className="h-4 w-4" />,
+          color: "text-gray-500",
+        };
+      case "deny":
+        return {
+          text: "Ditolak",
+          icon: <XCircle className="h-4 w-4" />,
+          color: "text-red-500",
+        };
+      case "refund":
+        return {
+          text: "Refund",
+          icon: <AlertCircle className="h-4 w-4" />,
+          color: "text-blue-500",
+        };
+      case "pending":
+        return {
+          text: "Menunggu Pembayaran",
+          icon: <Clock className="h-4 w-4" />,
+          color: "text-orange-500",
+        };
       default:
         return {
-          text: "Status Tidak Dikenal",
+          text: status ? status : "Status Tidak Dikenal",
           icon: <AlertCircle className="h-4 w-4" />,
           color: "text-gray-500",
         };
@@ -237,7 +268,7 @@ const MyOrdersPage: React.FC = () => {
                   <div className="p-4 bg-gray-50 border-t border-gray-200">
                     <div className="flex justify-end items-center mb-4">
                       <span className="text-gray-600 mr-2">Total Pesanan:</span>
-                      <span className="font-bold text-lg text-orange-600">
+                      <span className="font-bold text-lg text-blue-600">
                         Rp
                         {parseFloat(order.grand_total).toLocaleString("id-ID")}
                       </span>

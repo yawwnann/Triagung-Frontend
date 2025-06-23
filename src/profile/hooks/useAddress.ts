@@ -46,16 +46,16 @@ export const useAddress = () => {
   }, []);
 
   useEffect(() => {
-    fetch("/api/provinces")
-      .then((res) => res.json())
-      .then((data) => setProvinces(data));
+    ApiConfig.get("/provinces")
+      .then((res) => setProvinces(res.data))
+      .catch(() => setProvinces([]));
   }, []);
 
   useEffect(() => {
     if (selectedProvince) {
-      fetch(`/api/regencies?province_id=${selectedProvince}`)
-        .then((res) => res.json())
-        .then((data) => setCities(data));
+      ApiConfig.get(`/regencies?province_id=${selectedProvince}`)
+        .then((res) => setCities(res.data))
+        .catch(() => setCities([]));
     } else {
       setCities([]);
       setDistricts([]);
@@ -65,9 +65,9 @@ export const useAddress = () => {
 
   useEffect(() => {
     if (selectedCity) {
-      fetch(`/api/districts?regency_id=${selectedCity}`)
-        .then((res) => res.json())
-        .then((data) => setDistricts(data));
+      ApiConfig.get(`/districts?regency_id=${selectedCity}`)
+        .then((res) => setDistricts(res.data))
+        .catch(() => setDistricts([]));
     } else {
       setDistricts([]);
     }

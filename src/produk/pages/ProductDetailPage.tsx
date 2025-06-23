@@ -42,6 +42,11 @@ interface Product {
   images?: ProductImage[]; // Optional array of additional images
 }
 
+interface Address {
+  id: number;
+  is_default?: boolean;
+}
+
 interface ProductDetailPageProps {
   isAuthenticated: boolean;
 }
@@ -65,6 +70,10 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     message: string;
     type: "success" | "error";
   } | null>(null);
+
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null
+  );
 
   const tabs = ["Deskripsi", "Ulasan"];
 
@@ -95,6 +104,25 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
     fetchProduct();
   }, [id]);
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
+        const res = await ApiConfig.get("/addresses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const addresses = res.data;
+        const defaultAddress =
+          addresses.find((a: Address) => a.is_default) || addresses[0];
+        setSelectedAddressId(defaultAddress ? defaultAddress.id : null);
+      } catch (err) {
+        console.error("Gagal memuat alamat user:", err);
+      }
+    };
+    if (isAuthenticated) fetchAddresses();
+  }, [isAuthenticated]);
 
   if (loading) {
     return (
@@ -168,19 +196,25 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       return;
     }
     if (!product) return;
-
+    if (!selectedAddressId) {
+      setNotification({
+        message:
+          "Silakan tambahkan atau pilih alamat pengiriman terlebih dahulu.",
+        type: "error",
+      });
+      return;
+    }
     try {
       const payload = {
         product_id: product.id,
         quantity: quantity,
+        address_id: selectedAddressId,
       };
-
       await ApiConfig.post("/cart", payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-
       setNotification({
         message: "Produk berhasil ditambahkan ke keranjang!",
         type: "success",
@@ -188,7 +222,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     } catch (error) {
       console.error("Gagal menambahkan produk ke keranjang:", error);
       if (axios.isAxiosError(error)) {
-        console.error("Detail error Axios:", error.response?.data);
+        console.error(
+          "Detail error Axios:",
+          error.response?.data || error.message,
+          error.response?.status
+        );
+        alert(JSON.stringify(error.response?.data || error.message));
       }
       setNotification({ message: "Gagal menambahkan produk.", type: "error" });
     }

@@ -101,7 +101,7 @@ const Register: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4 relative overflow-hidden font-montserrat">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4 relative overflow-hidden font-montserrat mt-20">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-blue-200/30 to-blue-200/30 rounded-full blur-3xl"></div>
@@ -225,7 +225,7 @@ const Register: React.FC = () => {
                         <input
                           type={showPassword ? "text" : "password"}
                           name="password"
-                          placeholder="••••••••"
+                          placeholder="password"
                           value={formData.password}
                           onChange={handleInputChange}
                           className="w-full pl-11 pr-11 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white"
