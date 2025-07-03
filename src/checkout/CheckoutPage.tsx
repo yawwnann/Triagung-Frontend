@@ -138,7 +138,7 @@ const CheckoutPage: React.FC = () => {
 
   // Kalkulasi total
   const subtotal = cart ? parseFloat(cart.total_amount) : 0;
-  const shippingCost = 0; // Contoh, bisa dibuat dinamis
+  const shippingCost = 0;
   const total = subtotal + shippingCost;
 
   // Render komponen skeleton saat loading

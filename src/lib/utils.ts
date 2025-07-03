@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api", // Ganti sesuai URL API kamu
+  baseURL: "https://triagung-backend-production.up.railway.app/api",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

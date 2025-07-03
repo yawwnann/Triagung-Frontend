@@ -182,9 +182,9 @@ const OrderDetailPage: React.FC = () => {
           Kembali ke Riwayat
         </button>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-lg font-bold uppercase text-blue-600 border-2 border-blue-500 bg-blue-50 px-4 py-2 rounded-md">
+            <h1 className="text-lg font-bold uppercase text-blue-600 border-2 border-blue-500 bg-blue-50 px-4 py-2 rounded-md ">
               {order.status.replace("_", " ")}
             </h1>
             <div className="flex gap-3">
@@ -196,7 +196,7 @@ const OrderDetailPage: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="border-t my-4"></div>
+          <div className="border-t border-gray-100 my-4"></div>
           <div className="flex justify-between items-center text-sm">
             <p className="text-gray-500">
               No. Pesanan:{" "}
@@ -215,13 +215,13 @@ const OrderDetailPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 mb-6">
           <OrderStatusTracker status={order.status} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Truck size={20} /> Alamat Pengiriman
               </h2>
@@ -239,7 +239,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {order.notes && (
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MessageSquare size={20} /> Catatan Pesanan
                 </h2>
@@ -249,7 +249,7 @@ const OrderDetailPage: React.FC = () => {
               </div>
             )}
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white rounded-lg shadow-md border border-gray-100">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>
@@ -289,7 +289,7 @@ const OrderDetailPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 h-fit">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <ClipboardList size={20} /> Rincian Tagihan
             </h2>

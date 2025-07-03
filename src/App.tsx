@@ -147,6 +147,7 @@ const App: React.FC = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/profile/orders" element={<MyOrdersPage />} />
+          <Route path="/profile/orders/:id" element={<OrderDetailPage />} />
           <Route path="/order/:id" element={<OrderDetailPage />} />
         </Routes>
       </main>

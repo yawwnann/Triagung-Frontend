@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import ApiConfig from "../lib/ApiConfig";
 import type { Order } from "../types/order";
 import {
-  CheckCircle2,
-  XCircle,
-  Clock,
+  // CheckCircle2,
+  // XCircle,
+  // Clock,
   Plus,
   ShoppingBag,
   AlertCircle,
-  Truck,
+  // Truck,
 } from "lucide-react";
 import { getImageUrl } from "../lib/ImageUrl";
 
@@ -18,6 +18,16 @@ interface Product {
   nama: string;
   gambar: string;
 }
+
+const statusLabels: { [key: string]: { text: string; color: string } } = {
+  pending: {
+    text: "Menunggu Pembayaran",
+    color: "bg-orange-100 text-orange-700",
+  },
+  processing: { text: "Diproses", color: "bg-yellow-100 text-yellow-700" },
+  completed: { text: "Selesai", color: "bg-green-100 text-green-700" },
+  cancelled: { text: "Dibatalkan", color: "bg-red-100 text-red-700" },
+};
 
 const MyOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -89,72 +99,6 @@ const MyOrdersPage: React.FC = () => {
     fetchOrderData();
   }, [fetchOrderData]);
 
-  const getOrderStatusInfo = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "processing":
-        return {
-          text: "Pesanan Diproses",
-          icon: <Clock className="h-4 w-4" />,
-          color: "text-yellow-600",
-        };
-      case "shipped":
-        return {
-          text: "Dikirim",
-          icon: <Truck className="h-4 w-4" />,
-          color: "text-blue-600",
-        };
-      case "delivered":
-        return {
-          text: "Tiba di Tujuan",
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          color: "text-green-600",
-        };
-      case "cancelled":
-      case "cancel":
-        return {
-          text: "Dibatalkan",
-          icon: <XCircle className="h-4 w-4" />,
-          color: "text-red-600",
-        };
-      case "settlement":
-        return {
-          text: "Lunas",
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          color: "text-green-700",
-        };
-      case "expire":
-        return {
-          text: "Kedaluwarsa",
-          icon: <AlertCircle className="h-4 w-4" />,
-          color: "text-gray-500",
-        };
-      case "deny":
-        return {
-          text: "Ditolak",
-          icon: <XCircle className="h-4 w-4" />,
-          color: "text-red-500",
-        };
-      case "refund":
-        return {
-          text: "Refund",
-          icon: <AlertCircle className="h-4 w-4" />,
-          color: "text-blue-500",
-        };
-      case "pending":
-        return {
-          text: "Menunggu Pembayaran",
-          icon: <Clock className="h-4 w-4" />,
-          color: "text-orange-500",
-        };
-      default:
-        return {
-          text: status ? status : "Status Tidak Dikenal",
-          icon: <AlertCircle className="h-4 w-4" />,
-          color: "text-gray-500",
-        };
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -178,10 +122,15 @@ const MyOrdersPage: React.FC = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="flex items-center justify-between mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-            Riwayat Pesanan
-          </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 gap-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              Pesanan Saya
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Lihat status dan detail semua pesanan Anda
+            </p>
+          </div>
           <button
             onClick={() => navigate("/products")}
             className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
@@ -191,106 +140,118 @@ const MyOrdersPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Ringkasan Status */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          {Object.entries(statusLabels).map(([key, val]) => (
+            <div
+              key={key}
+              className={`rounded-lg p-4 flex flex-col items-center shadow-sm ${val.color}`}
+            >
+              <span className="text-lg font-bold">
+                {orders.filter((o) => o.status === key).length}
+              </span>
+              <span className="text-xs mt-1">{val.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* List Pesanan */}
         {orders.length === 0 ? (
-          <div className="text-center bg-white p-16 rounded-xl shadow-md border border-gray-100">
+          <div className="text-center bg-white p-16 rounded-xl shadow-md ">
             <ShoppingBag className="mx-auto h-16 w-16 text-gray-300" />
             <h3 className="mt-4 text-lg font-semibold text-gray-800">
               Anda Belum Memiliki Pesanan
             </h3>
             <p className="mt-2 text-base text-gray-500">
-              Semua pesanan yang Anda buat akan muncul di sini.
+              Yuk, mulai belanja dan nikmati kemudahan transaksi di toko kami!
             </p>
-            <div className="mt-8">
-              <button
-                onClick={() => navigate("/products")}
-                type="button"
-                className="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Mulai Belanja Sekarang
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("/products")}
+              className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Belanja Sekarang
+            </button>
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => {
-              const orderStatusInfo = getOrderStatusInfo(order.status);
-              return (
-                <div
-                  key={order.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200"
-                >
-                  <div className="p-4 flex justify-between items-center border-b border-gray-200">
-                    <div className="flex items-center gap-3">
-                      <ShoppingBag className="h-5 w-5 text-gray-600" />
-                      <span className="font-bold text-gray-800">
-                        Pesanan #{order.order_number}
-                      </span>
-                    </div>
-                    <div
-                      className={`flex items-center gap-1.5 text-sm font-semibold ${orderStatusInfo.color}`}
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-transform duration-200 hover:shadow-lg hover:-translate-y-1"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm text-gray-500">No. Pesanan:</span>
+                    <span className="font-semibold text-gray-800">
+                      {order.order_number}
+                    </span>
+                    <span
+                      className={`ml-3 px-2 py-1 rounded text-xs font-semibold ${
+                        statusLabels[order.status]?.color ||
+                        "bg-gray-200 text-gray-700"
+                      }`}
                     >
-                      {orderStatusInfo.icon}
-                      <span>{orderStatusInfo.text}</span>
-                    </div>
+                      {statusLabels[order.status]?.text || order.status}
+                    </span>
                   </div>
-
-                  <div className="p-4">
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex gap-4 items-start py-4 border-b border-gray-100 last:border-b-0"
+                        className="flex items-center gap-2  rounded px-2 py-1 bg-gray-50"
                       >
                         <img
                           src={getImageUrl(
-                            productsMap.get(item.product_id)?.gambar
+                            productsMap.get(item.product_id)?.gambar || ""
                           )}
                           alt={item.product_name}
-                          className="w-20 h-20 bg-gray-100 rounded-md object-cover flex-shrink-0"
+                          className="w-8 h-8 object-cover rounded"
                         />
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900">
-                            {item.product_name}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            x{item.quantity}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-md font-semibold text-gray-800">
-                            Rp
-                            {parseFloat(item.price).toLocaleString("id-ID")}
-                          </p>
-                        </div>
+                        <span className="text-xs text-gray-700">
+                          {item.product_name}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          x{item.quantity}
+                        </span>
                       </div>
                     ))}
                   </div>
-
-                  <div className="p-4 bg-gray-50 border-t border-gray-200">
-                    <div className="flex justify-end items-center mb-4">
-                      <span className="text-gray-600 mr-2">Total Pesanan:</span>
-                      <span className="font-bold text-lg text-blue-600">
-                        Rp
-                        {parseFloat(order.grand_total).toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                    <div className="flex justify-end items-center gap-3">
-                      <button
-                        onClick={() => {}}
-                        className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                      >
-                        Hubungi Penjual
-                      </button>
-                      <button
-                        onClick={() => navigate(`/order/${order.id}`)}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
-                      >
-                        Lihat Rincian
-                      </button>
-                    </div>
+                  <div className="text-sm text-gray-500 mb-1">
+                    Tanggal: {new Date(order.created_at).toLocaleString()}
+                  </div>
+                  <div className="text-lg font-bold text-gray-900">
+                    Total: Rp
+                    {parseInt(order.grand_total).toLocaleString("id-ID")}
                   </div>
                 </div>
-              );
-            })}
+                <div className="flex flex-col gap-2 min-w-[150px]">
+                  <button
+                    onClick={() => navigate(`/profile/orders/${order.id}`)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    Lihat Detail
+                  </button>
+                  {order.status === "pending" && (
+                    <button
+                      onClick={() => navigate(`/checkout?order=${order.id}`)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                    >
+                      Bayar Sekarang
+                    </button>
+                  )}
+                  {order.status === "pending" && (
+                    <button className="px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm">
+                      Batalkan Pesanan
+                    </button>
+                  )}
+                  {order.status === "processing" && (
+                    <button className="px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 text-sm">
+                      Konfirmasi Selesai
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -4,11 +4,11 @@ import {
   Menu,
   X,
   User as UserIcon,
-  Sparkles,
   ShoppingCart,
   ShoppingBag,
   LogOut,
   ChevronDown,
+  Phone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useRef, useState, useEffect } from "react";
@@ -32,6 +32,7 @@ interface NavItemsProps {
   items: {
     name: string;
     link: string;
+    icon?: React.ElementType;
   }[];
   className?: string;
   onItemClick?: () => void;
@@ -255,8 +256,13 @@ export const Navbar = ({
               Login
             </NavbarButton>
           )}
-          <NavbarButton href="#" variant="gradient">
-            <Sparkles className="w-4 h-4 mr-2" />
+          <NavbarButton
+            href="https://wa.me/6281358092166"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="gradient"
+          >
+            <Phone className="w-4 h-4 mr-2" />
             Hubungi Kami
           </NavbarButton>
         </div>
@@ -417,12 +423,14 @@ export const Navbar = ({
             </NavbarButton>
           )}
           <NavbarButton
-            href="#"
+            href="https://wa.me/6281358092166"
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full mt-2"
             variant="gradient"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <Sparkles className="w-4 h-4 mr-2" />
+            <Phone className="w-4 h-4 mr-2" />
             Hubungi Kami
           </NavbarButton>
         </MobileNavMenu>
