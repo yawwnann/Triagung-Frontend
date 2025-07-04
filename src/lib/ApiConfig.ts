@@ -3,6 +3,7 @@ import axios from "axios";
 // Konfigurasi utama untuk koneksi API backend
 const ApiConfig = axios.create({
   baseURL: "https://triagung-backend-production.up.railway.app/api",
+  // baseURL: "http://127.0.0.1:8000/api",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

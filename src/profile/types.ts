@@ -6,6 +6,7 @@ export interface Address {
   address: string;
   province: string;
   city: string;
+  regency_id?: string;
   district: string;
   postal_code: string;
   is_default?: boolean;
