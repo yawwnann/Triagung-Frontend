@@ -134,6 +134,7 @@ export const useAddress = () => {
       address: formData.get("address") as string,
       province: provObj.name,
       city: cityObj.name,
+      regency_id: cityObj.id,
       district: districtObj.name,
       postal_code: formData.get("postal_code") as string,
       is_default: formData.get("is_default") === "on",
