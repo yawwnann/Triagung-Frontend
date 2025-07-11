@@ -133,7 +133,6 @@ export const useAddress = () => {
       postal_code: formData.get("postal_code") as string,
       is_default: formData.get("is_default") === "on",
       notes: formData.get("notes") as string,
-      regency_id: cityObj.id, // Add regency_id for backend compatibility
     };
 
     const requiredFields: (keyof typeof payload)[] = [
