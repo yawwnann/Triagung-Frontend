@@ -74,7 +74,7 @@ const FooterSection: React.FC = () => {
           <ul className="space-y-2">
             <li>
               <a
-                href="#"
+                href="/about"
                 className="text-gray-400 hover:text-blue-500 transition-colors duration-200"
               >
                 Tentang Kami
@@ -82,7 +82,7 @@ const FooterSection: React.FC = () => {
             </li>
             <li>
               <a
-                href="#"
+                href="/produk"
                 className="text-gray-400 hover:text-blue-500 transition-colors duration-200"
               >
                 Produk
