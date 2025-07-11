@@ -126,11 +126,9 @@ const Profile: React.FC = () => {
           return;
         }
 
-        const headers = { Authorization: `Bearer ${token}` };
-
         const [userResponse, profileDetailResponse] = await Promise.all([
-          ApiConfig.get("/me", { headers }),
-          ApiConfig.get("/profile-detail", { headers }).catch((error) => {
+          ApiConfig.get("/me"),
+          ApiConfig.get("/profile-detail").catch((error) => {
             if (error.response && error.response.status === 404) {
               return { data: {} };
             }
@@ -198,11 +196,7 @@ const Profile: React.FC = () => {
     e.preventDefault();
     setNotification(null);
     try {
-      const token = localStorage.getItem("access_token");
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await ApiConfig.post("/profile-detail", formData, {
-        headers,
-      });
+      const response = await ApiConfig.post("/profile-detail", formData);
 
       const updatedDetails = response.data.user || response.data;
       setUser(

@@ -29,10 +29,7 @@ export const useAddress = () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem("access_token");
-      const res = await ApiConfig.get("/addresses", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await ApiConfig.get("/addresses");
       setAddresses(res.data);
     } catch {
       setError("Gagal memuat alamat. Coba lagi.");
@@ -95,10 +92,7 @@ export const useAddress = () => {
     )
       return;
     try {
-      const token = localStorage.getItem("access_token");
-      await ApiConfig.delete(`/addresses/${addr.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await ApiConfig.delete(`/addresses/${addr.id}`);
       fetchAddresses();
     } catch {
       alert("Gagal menghapus alamat. Silakan coba lagi.");
@@ -138,6 +132,7 @@ export const useAddress = () => {
       postal_code: formData.get("postal_code") as string,
       is_default: formData.get("is_default") === "on",
       notes: formData.get("notes") as string,
+      regency_id: cityObj.id, // Add regency_id for backend compatibility
     };
 
     const requiredFields: (keyof typeof payload)[] = [
@@ -158,16 +153,11 @@ export const useAddress = () => {
     }
 
     try {
-      const token = localStorage.getItem("access_token");
       if (editAddress) {
-        await ApiConfig.put(`/addresses/${editAddress.id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await ApiConfig.put(`/addresses/${editAddress.id}`, payload);
         setFormSuccess("Alamat berhasil diperbarui.");
       } else {
-        await ApiConfig.post("/addresses", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await ApiConfig.post("/addresses", payload);
         setFormSuccess("Alamat berhasil ditambahkan.");
       }
       setTimeout(() => {
