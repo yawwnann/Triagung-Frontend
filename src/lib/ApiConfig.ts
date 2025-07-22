@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Konfigurasi utama untuk koneksi API backend
 const ApiConfig = axios.create({
-  baseURL: "https://triagung-backend.up.railway.app/api",
+  baseURL: "https://12737d69bb45.ngrok-free.app/api",
 
   // baseURL: "https://triagung-backend-production.up.railway.app/api",
   headers: {

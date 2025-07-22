@@ -15,7 +15,8 @@ const ProductHighlight: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const res = await ApiConfig.get("/produks");
-        setProducts(res.data.slice(0, 4));
+        const data = Array.isArray(res.data) ? res.data : res.data.data || [];
+        setProducts(data.slice(0, 4));
       } catch {
         setProducts([]);
       }
@@ -36,21 +37,24 @@ const ProductHighlight: React.FC = () => {
           ini menjadi salah satu yang paling sering dibeli setiap bulannya.
         </p>
         <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-8">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="bg-white rounded-2xl border border-blue-400 p-4 flex flex-col items-center w-64 shadow-sm"
-            >
-              <img
-                src={p.gambar}
-                alt={p.nama}
-                className="w-full h-56 object-cover rounded-t-2xl mb-2"
-              />
-              <span className="text-black mt-2 text-base md:text-lg">
-                {p.nama}
-              </span>
-            </div>
-          ))}
+          {Array.isArray(products) &&
+            products.map((p) => (
+              <div
+                key={p.id}
+                className="bg-white rounded-2xl border border-gray-200 hover:border-blue-500 shadow-sm hover:shadow-lg transition-all duration-200 p-4 flex flex-col items-center w-64 group"
+              >
+                <div className="w-full h-48 flex items-center justify-center mb-3 overflow-hidden rounded-xl bg-gray-50">
+                  <img
+                    src={p.gambar}
+                    alt={p.nama}
+                    className="object-contain h-40 transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <span className="text-black font-semibold text-base md:text-lg text-center mb-1">
+                  {p.nama}
+                </span>
+              </div>
+            ))}
         </div>
         <div className="flex justify-center">
           <Link
