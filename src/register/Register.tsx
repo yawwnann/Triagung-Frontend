@@ -9,6 +9,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import ApiConfig from "../lib/ApiConfig";
+import Notification from "../common/components/Notification";
 
 type ErrorResponse = { message?: string; errors?: Record<string, string[]> };
 
@@ -24,6 +25,7 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showEmailExistsModal, setShowEmailExistsModal] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +67,15 @@ const Register: React.FC = () => {
           errorMessage = Object.values(responseData.errors).flat().join("\n");
         }
       }
-      setError(errorMessage);
+      // Deteksi error email sudah ada
+      if (
+        errorMessage.toLowerCase().includes("email") &&
+        errorMessage.toLowerCase().includes("taken")
+      ) {
+        setShowEmailExistsModal(true);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +110,14 @@ const Register: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+      {showEmailExistsModal && (
+        <Notification
+          message="Email sudah terdaftar. Silakan gunakan email lain atau login."
+          type="error"
+          onClose={() => setShowEmailExistsModal(false)}
+          duration={0}
+        />
       )}
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4 relative overflow-hidden font-montserrat mt-20">
         {/* Background decorations */}

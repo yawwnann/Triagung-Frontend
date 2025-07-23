@@ -18,7 +18,6 @@ import {
   Star,
 } from "lucide-react";
 import type { Address } from "../profile/types";
-import { getImageUrl } from "../lib/ImageUrl";
 import axios from "axios";
 import ShippingCalculator from "./components/ShippingCalculator";
 
@@ -35,6 +34,7 @@ interface CartItem {
   quantity: number;
   price: string;
   produk: Product;
+  product_image?: string; // Added for new_code
 }
 
 interface Cart {
@@ -517,7 +517,7 @@ const ProductList: React.FC<{ items: CartItem[] }> = ({ items }) => (
       >
         <div className="relative">
           <img
-            src={getImageUrl(item.produk.gambar)}
+            src={item.product_image || "/placeholder.png"}
             alt={item.product_name}
             className="w-20 h-20 rounded-lg object-cover shadow-sm"
           />
