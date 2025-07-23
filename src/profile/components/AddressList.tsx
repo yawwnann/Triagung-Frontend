@@ -58,7 +58,7 @@ const AddressList: React.FC<AddressListProps> = ({
     );
   }
 
-  if (addresses.length === 0) {
+  if (!Array.isArray(addresses) || addresses.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-12 text-center">
         <div className="text-gray-400 mb-4">
@@ -100,53 +100,56 @@ const AddressList: React.FC<AddressListProps> = ({
 
   return (
     <div className="space-y-6">
-      {addresses.map((addr) => (
-        <div
-          key={addr.id}
-          className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 flex flex-col sm:flex-row gap-6"
-        >
-          <div className="flex-grow">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-bold text-gray-800">{addr.label}</h3>
-              {addr.is_default && (
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                  Utama
-                </span>
-              )}
-            </div>
+      {Array.isArray(addresses) &&
+        addresses.map((addr) => (
+          <div
+            key={addr.id}
+            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 flex flex-col sm:flex-row gap-6"
+          >
+            <div className="flex-grow">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-bold text-gray-800">
+                  {addr.label}
+                </h3>
+                {addr.is_default && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                    Utama
+                  </span>
+                )}
+              </div>
 
-            <div className="space-y-3 text-sm text-gray-600">
-              <p className="font-semibold text-gray-800">
-                {addr.recipient_name} ({addr.phone})
-              </p>
-              <p>
-                {addr.address}, {addr.district}, {addr.city}, {addr.province},{" "}
-                {addr.postal_code}
-              </p>
-              {addr.notes && (
-                <p className="text-xs text-gray-500 italic pt-2">
-                  <span className="font-semibold">Catatan:</span> {addr.notes}
+              <div className="space-y-3 text-sm text-gray-600">
+                <p className="font-semibold text-gray-800">
+                  {addr.recipient_name} ({addr.phone})
                 </p>
-              )}
+                <p>
+                  {addr.address}, {addr.district}, {addr.city}, {addr.province},{" "}
+                  {addr.postal_code}
+                </p>
+                {addr.notes && (
+                  <p className="text-xs text-gray-500 italic pt-2">
+                    <span className="font-semibold">Catatan:</span> {addr.notes}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex sm:flex-col gap-2 flex-shrink-0 pt-4 sm:pt-0 sm:border-l sm:pl-6 border-t sm:border-t-0 border-gray-100">
+              <button
+                onClick={() => onEdit(addr)}
+                className="w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(addr)}
+                className="w-full px-3 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+              >
+                Hapus
+              </button>
             </div>
           </div>
-
-          <div className="flex sm:flex-col gap-2 flex-shrink-0 pt-4 sm:pt-0 sm:border-l sm:pl-6 border-t sm:border-t-0 border-gray-100">
-            <button
-              onClick={() => onEdit(addr)}
-              className="w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => onDelete(addr)}
-              className="w-full px-3 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
-            >
-              Hapus
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 };

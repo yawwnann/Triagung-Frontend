@@ -142,11 +142,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 required
               >
                 <option value="">Pilih Provinsi</option>
-                {provinces.map((prov) => (
-                  <option key={prov.id} value={prov.id}>
-                    {prov.name}
-                  </option>
-                ))}
+                {Array.isArray(provinces) &&
+                  provinces.map((prov) => (
+                    <option key={prov.id} value={prov.id}>
+                      {prov.name}
+                    </option>
+                  ))}
               </select>
             </div>
             <div>
