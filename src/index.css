@@ -3,17 +3,25 @@
 @import "tailwindcss";
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Montserrat", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f9fafb; /* Latar belakang abu-abu muda */
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body,
 #root {
   margin: 0 !important;
   padding: 0 !important;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* body,

@@ -30,7 +30,7 @@ const FooterSection: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black pt-12">
+    <footer className="bg-gray-950 pt-12">
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 pb-8">
         <motion.div {...fadeIn}>
           <h3 className="font-extrabold text-2xl mb-4 text-white">Startup</h3>

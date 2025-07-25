@@ -227,12 +227,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       />
                       <span>Ingat perangkat ini</span>
                     </label>
-                    <a
-                      href="#"
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
-                    >
-                      Lupa Password?
-                    </a>
                   </div>
 
                   {/* Submit button */}

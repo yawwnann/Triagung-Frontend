@@ -170,7 +170,7 @@ const testimonials: TestimonialItem[] = [
 // Komponen Demo (Wrapper)
 export function InfiniteMovingCardsDemo() {
   return (
-    <div className="pb-10 pt-4 md:pt-8 rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden bg-gray-900">
+    <div className="pb-10 pt-4 md:pt-8  flex flex-col antialiased items-center justify-center relative overflow-hidden bg-gray-900">
       <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-6">
         Apa Kata Mereka Tentang Tri Jaya Agung?
       </h2>
