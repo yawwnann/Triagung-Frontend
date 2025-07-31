@@ -16,13 +16,13 @@ const HeroSection: React.FC = () => (
     </div>
 
     {/* Hero Content */}
-    <div className="relative z-20 flex flex-col items-start ml-24 mt-24 px-10 py-16 md:py-24 max-w-2xl">
-      <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+    <div className="relative z-20 flex flex-col items-center md:items-start mx-auto mt-16 px-4 py-16 md:py-24 max-w-2xl text-center md:text-left">
+      <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg text-center md:text-left">
         Bangun Lebih Mudah,
         <br />
         Belanja Lebih Cepat
       </h1>
-      <p className="text-white text-lg md:text-xl mb-6 drop-shadow">
+      <p className="text-white text-lg md:text-xl mb-6 drop-shadow text-center md:text-left">
         "Kami Menyediakan Berbagai Pilihan Material Bangunan
         <br />
         Dengan Kualitas Terjamin Dan Harga Kompetitif."

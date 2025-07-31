@@ -283,6 +283,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     return stars;
   };
 
+  const rupiah = (number: unknown) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(number as number);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -415,7 +422,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     <div>
                       <span className="text-lg text-gray-500">Harga</span>
                       <p className="text-4xl font-bold text-blue-600">
-                        Rp {product.harga.toLocaleString("id-ID")}
+                        {rupiah(product.harga)}
                       </p>
                     </div>
                     <p className="text-base text-green-600 font-medium">

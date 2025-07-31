@@ -301,7 +301,7 @@ export const Navbar = ({
               variant="ghost"
               className="hidden sm:flex"
             >
-              Login
+              Masuk
             </NavbarButton>
           )}
           <NavbarButton
@@ -313,7 +313,7 @@ export const Navbar = ({
           >
             <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             <span className="hidden xs:inline">Hubungi</span>
-            <span className="xs:hidden">Call</span>
+            <span className="xs:hidden">Hubungi</span>
           </NavbarButton>
         </div>
       </NavBody>

@@ -78,7 +78,7 @@ const ProductHighlight: React.FC = () => {
           </div>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="text-blue-600">SEMEN BERKUALITAS,</span>
+            <span className="text-blue-600">MATERIAL BERKUALITAS,</span>
             <br />
             <span className="text-gray-800">PILIHAN UTAMA PELANGGAN KAMI</span>
           </h2>
