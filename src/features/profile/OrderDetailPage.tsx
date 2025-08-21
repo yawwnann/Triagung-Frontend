@@ -566,6 +566,49 @@ const OrderDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
+              {order.status === "shipped" && order.resi && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <h3 className="font-bold mb-4 text-gray-800 flex items-center gap-2">
+                    <Truck className="h-6 w-6 text-blue-600" />
+                    Informasi Pengiriman
+                  </h3>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <p className="font-bold text-gray-800">
+                              Nomor Resi
+                            </p>
+                          </div>
+                          <p className="text-gray-700 font-mono font-semibold text-lg">
+                            {order.resi}
+                          </p>
+                        </div>
+                        <a
+                          href={`https://cekresi.com/?noresi=${order.resi}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                          Lacak Paket
+                        </a>
+                      </div>
+                      {order.shipping_courier && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">
+                            Kurir:{" "}
+                            <span className="font-semibold">
+                              {order.shipping_courier}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiConfig, getImageUrl } from "../../shared/utils";
 import type { Order } from "../../shared/types/order";
@@ -15,6 +15,10 @@ import {
   Truck,
   Eye,
 } from "lucide-react";
+import { Dialog, Transition } from "@headlessui/react";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Skeleton Components
 const SkeletonLine: React.FC<{ className?: string }> = ({ className = "" }) => (
@@ -170,6 +174,20 @@ const MyOrdersPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // State untuk modal konfirmasi
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [orderToConfirm, setOrderToConfirm] = useState<number | null>(null);
+
+  const openConfirmModal = (orderId: number) => {
+    setOrderToConfirm(orderId);
+    setIsConfirmModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+    setOrderToConfirm(null);
+  };
+
   const fetchOrderData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -245,6 +263,36 @@ const MyOrdersPage: React.FC = () => {
       </div>
     );
   }
+
+  const handleConfirmOrderReceived = async (orderId: number) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        alert("Token tidak ditemukan. Silakan login kembali.");
+        navigate("/login");
+        return;
+      }
+
+      await ApiConfig.post(
+        `/orders/${orderId}/confirm-received`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Tampilkan toast sukses
+      toast.success("Pesanan berhasil dikonfirmasi diterima!");
+
+      // Refresh orders to update status
+      fetchOrderData();
+    } catch (err: unknown) {
+      console.error("Gagal mengkonfirmasi pesanan diterima:", err);
+
+      // Tampilkan toast error
+      toast.error("Gagal mengkonfirmasi pesanan diterima. Silakan coba lagi.");
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
@@ -462,7 +510,10 @@ const MyOrdersPage: React.FC = () => {
                         )}
 
                         {order.status === "shipped" && (
-                          <button className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition-colors font-medium">
+                          <button
+                            onClick={() => openConfirmModal(order.id)}
+                            className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition-colors font-medium"
+                          >
                             <CheckCircle className="h-4 w-4" />
                             Konfirmasi Diterima
                           </button>
@@ -476,6 +527,73 @@ const MyOrdersPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Konfirmasi */}
+      <Transition appear show={isConfirmModalOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeConfirmModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Konfirmasi Penerimaan Pesanan
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Apakah Anda yakin ingin mengkonfirmasi penerimaan pesanan
+                      dengan ID #{orderToConfirm}?
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      onClick={closeConfirmModal}
+                      className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (orderToConfirm) {
+                          handleConfirmOrderReceived(orderToConfirm);
+                        }
+                        closeConfirmModal();
+                      }}
+                      className="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                    >
+                      Konfirmasi
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <ToastContainer />
     </div>
   );
 };

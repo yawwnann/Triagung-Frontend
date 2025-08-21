@@ -1,6 +1,6 @@
 import React from "react";
 import { Star } from "lucide-react";
-import ConfirmationModal from "../../common/components/ConfirmationModal";
+import ConfirmationModal from "../../../shared/components/ConfirmationModal";
 
 interface SetPrimaryAddressModalProps {
   isOpen: boolean;

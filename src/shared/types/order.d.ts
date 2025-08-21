@@ -56,6 +56,8 @@ export interface Order {
   payment_status: "paid" | "unpaid" | "pending" | "expired" | "cancelled";
   payment_method: string | null;
   notes: string | null;
+  resi: string | null;
+  shipping_courier: string | null;
   created_at: string;
   updated_at: string;
   payment_token: string | null;
