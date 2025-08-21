@@ -5,8 +5,8 @@ type ViteEnv = { VITE_API_BASE_URL?: string };
 const BASE_URL =
   (typeof import.meta !== "undefined" &&
     (import.meta as unknown as { env?: ViteEnv }).env?.VITE_API_BASE_URL) ||
-  // "https://trijaya-backend-backup-production-ed79.up.railway.app/api";
-  "http://127.0.0.1:8000/api";
+  "https://trijaya-backend-backup-production-ed79.up.railway.app/api";
+// "http://127.0.0.1:8000/api";
 
 // Konfigurasi utama untuk koneksi API backend
 const ApiConfig = axios.create({
