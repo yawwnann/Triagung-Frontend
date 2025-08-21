@@ -11,23 +11,16 @@ const AddressPage: React.FC = () => {
     error,
     showForm,
     editAddress,
-    formLoading,
-    formError,
-    formSuccess,
-    provinces,
-    cities,
-    districts,
-    selectedProvince,
-    selectedCity,
-    setSelectedProvince,
-    setSelectedCity,
     setShowForm,
     handleShowForm,
     handleDeleteAddress,
-    handleSubmit,
     fetchAddresses,
   } = useAddress();
   const navigate = useNavigate();
+
+  const handleFormSuccess = () => {
+    fetchAddresses();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -94,20 +87,11 @@ const AddressPage: React.FC = () => {
       </main>
 
       <AddressForm
-        showForm={showForm}
-        editAddress={editAddress}
-        formLoading={formLoading}
-        formError={formError}
-        formSuccess={formSuccess}
-        provinces={provinces}
-        cities={cities}
-        districts={districts}
-        selectedProvince={selectedProvince}
-        selectedCity={selectedCity}
-        setSelectedProvince={setSelectedProvince}
-        setSelectedCity={setSelectedCity}
-        setShowForm={setShowForm}
-        handleSubmit={handleSubmit}
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSuccess={handleFormSuccess}
+        address={editAddress}
+        isEditing={!!editAddress}
       />
     </div>
   );

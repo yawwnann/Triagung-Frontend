@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageSquare, X } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import ConfirmationModal from "../common/components/ConfirmationModal";
 
 interface DeleteReviewModalProps {

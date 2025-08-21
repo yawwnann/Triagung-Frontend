@@ -1,5 +1,5 @@
 import React from "react";
-import { Package, X } from "lucide-react";
+import { Package } from "lucide-react";
 import ConfirmationModal from "../common/components/ConfirmationModal";
 
 interface DeleteProductModalProps {

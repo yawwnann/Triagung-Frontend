@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, X } from "lucide-react";
+import { Heart } from "lucide-react";
 import ConfirmationModal from "../common/components/ConfirmationModal";
 
 interface DeleteWishlistItemModalProps {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Key, AlertTriangle } from "lucide-react";
+import { Key } from "lucide-react";
 import ConfirmationModal from "../common/components/ConfirmationModal";
 
 interface ResetPasswordModalProps {

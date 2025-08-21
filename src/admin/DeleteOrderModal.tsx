@@ -1,5 +1,5 @@
 import React from "react";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import ConfirmationModal from "../common/components/ConfirmationModal";
 
 interface DeleteOrderModalProps {
