@@ -6,6 +6,8 @@ const WhatsappButton: React.FC = () => (
     target="_blank"
     rel="noopener noreferrer"
     className="fixed z-50 bottom-6 right-6 bg-green-500 hover:bg-green-600 rounded-full shadow-lg w-16 h-16 flex items-center justify-center transition-colors"
+    data-aos="zoom-in"
+    data-aos-delay="200"
     aria-label="Chat via WhatsApp"
   >
     <img

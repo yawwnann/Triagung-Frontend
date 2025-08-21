@@ -170,11 +170,22 @@ const testimonials: TestimonialItem[] = [
 // Komponen Demo (Wrapper)
 export function InfiniteMovingCardsDemo() {
   return (
-    <div className="pb-10 pt-4 md:pt-8  flex flex-col antialiased items-center justify-center relative overflow-hidden bg-gray-900">
-      <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-6">
+    <div
+      className="pb-10 pt-4 md:pt-8  flex flex-col antialiased items-center justify-center relative overflow-hidden bg-gray-900"
+      data-aos="fade-up"
+    >
+      <h2
+        className="text-2xl md:text-3xl font-bold text-center text-white mb-6"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      >
         Apa Kata Mereka Tentang Tri Jaya Agung?
       </h2>
-      <p className="text-white text-center text-2xl mb-6">
+      <p
+        className="text-white text-center text-2xl mb-6"
+        data-aos="fade-up"
+        data-aos-delay="150"
+      >
         Lihat pengalaman mereka yang telah berbelanja bahan <br /> bangunan
         berkualitas di Tri Jaya Agung
       </p>

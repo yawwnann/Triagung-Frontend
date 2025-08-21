@@ -26,12 +26,17 @@ const stats = [
 ];
 
 const StatsSection: React.FC = () => (
-  <section className="w-full bg-blue-600 py-8 px-2 font-sans">
+  <section
+    className="w-full bg-blue-600 py-8 px-2 font-sans"
+    data-aos="fade-up"
+  >
     <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/30">
       {stats.map((item, i) => (
         <div
           key={i}
           className="flex flex-col items-center justify-center py-4 px-2 text-center min-h-[90px]"
+          data-aos="fade-up"
+          data-aos-delay={`${i * 100}`}
         >
           {item.icon && <div className="mb-1">{item}</div>}
           <span

@@ -49,11 +49,11 @@ const FooterSection: React.FC = () => {
           </div>
           <div className="flex items-center mb-2">
             <Phone size={20} className="text-blue-500 mr-2" />
-            <p className="text-gray-400">Telepon : xxxxxxxxxxxx</p>
+            <p className="text-gray-400">Telepon :+6285748057838</p>
           </div>
           <div className="flex items-center mb-2">
             <MessageCircle size={20} className="text-blue-500 mr-2" />
-            <p className="text-gray-400">WhatsApp: xxxxxxxxxxxxxxxx</p>
+            <p className="text-gray-400">WhatsApp:+6285748057838</p>
           </div>
           <div className="flex items-center">
             <Mail size={20} className="text-blue-500 mr-2" />

@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* 
+* {
+  border: 1px solid red;
+} */
 
 @keyframes scroll {
   0% {

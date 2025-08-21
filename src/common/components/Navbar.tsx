@@ -730,10 +730,14 @@ export const NavbarLogo = () => {
         whileHover={{ scale: 1.05 }}
         className="flex items-center space-x-1.5 sm:space-x-2"
       >
-        <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-600 shadow-md">
-          <span className="text-white font-bold text-xs sm:text-sm">T</span>
+        <div className="h-10 w-10 flex items-center overflow-visible">
+          <img
+            src="/logo.png"
+            alt="TriJaya Agung"
+            className="h-10 w-10 object-contain scale-125 origin-left"
+          />
         </div>
-        <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent font-bold truncate max-w-[120px] sm:max-w-none">
+        <span className="hidden md:block bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent font-bold truncate max-w-[120px] sm:max-w-none">
           TriJaya Agung
         </span>
       </motion.div>

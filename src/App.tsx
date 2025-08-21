@@ -1,6 +1,7 @@
 // App.tsx
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import AOS from "aos";
 import "./App.css";
 import ApiConfig from "./lib/ApiConfig";
 
@@ -30,6 +31,7 @@ interface User {
 
 const App: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [itemCount, setItemCount] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -53,6 +55,15 @@ const App: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    AOS.init({ duration: 800, easing: "ease", once: true, offset: 50 });
+  }, []);
+
+  useEffect(() => {
+    // Refresh AOS when route changes so new elements animate
+    AOS.refresh();
+  }, [location]);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");

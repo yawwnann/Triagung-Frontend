@@ -1,8 +1,15 @@
 import React from "react";
 
 const ReviewAction: React.FC = () => (
-  <section className="bg-blue-600 py-10 flex justify-center items-center">
-    <button className="flex items-center justify-center w-full max-w-xl px-8 py-5 rounded-full border-2 border-white text-white text-lg font-medium bg-blue-600 hover:bg-blue-700 transition">
+  <section
+    className="bg-blue-600 py-10 flex justify-center items-center"
+    data-aos="fade-up"
+  >
+    <button
+      className="flex items-center justify-center w-full max-w-xl px-8 py-5 rounded-full border-2 border-white text-white text-lg font-medium bg-blue-600 hover:bg-blue-700 transition"
+      data-aos="zoom-in"
+      data-aos-delay="150"
+    >
       <svg
         className="w-6 h-6 mr-3"
         fill="none"

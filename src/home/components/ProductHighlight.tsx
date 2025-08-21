@@ -54,7 +54,10 @@ const ProductHighlight: React.FC = () => {
   }
 
   return (
-    <section className="w-full py-16 px-4 bg-gray-50 relative">
+    <section
+      className="w-full py-16 px-4 bg-gray-50 relative"
+      data-aos="fade-up"
+    >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-4 h-4 bg-blue-600 rounded-full"></div>
@@ -65,7 +68,11 @@ const ProductHighlight: React.FC = () => {
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div
+          className="text-center mb-12"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold mb-4 border border-blue-200">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -77,13 +84,21 @@ const ProductHighlight: React.FC = () => {
             Produk Unggulan
           </div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h2
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight"
+            data-aos="fade-up"
+            data-aos-delay="150"
+          >
             <span className="text-blue-600">MATERIAL BERKUALITAS,</span>
             <br />
             <span className="text-gray-800">PILIHAN UTAMA PELANGGAN KAMI</span>
           </h2>
 
-          <p className="text-gray-600 text-lg md:text-xl mb-4 max-w-4xl mx-auto leading-relaxed">
+          <p
+            className="text-gray-600 text-lg md:text-xl mb-4 max-w-4xl mx-auto leading-relaxed"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
             Produk andalan kami seperti{" "}
             <span className="font-semibold text-blue-600">Semen Tiga Roda</span>{" "}
             dan
@@ -95,7 +110,11 @@ const ProductHighlight: React.FC = () => {
             rekatnya yang kuat, tahan lama, dan sesuai standar SNI.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+          <div
+            className="flex flex-wrap justify-center gap-4 text-sm text-gray-500"
+            data-aos="fade-up"
+            data-aos-delay="250"
+          >
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <span>Standar SNI</span>
@@ -118,7 +137,8 @@ const ProductHighlight: React.FC = () => {
               <div
                 key={product.id}
                 className="group bg-white rounded-xl border-2 border-gray-100 hover:border-blue-300 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-                style={{ animationDelay: `${index * 100}ms` }}
+                data-aos="fade-up"
+                data-aos-delay={`${index * 100}`}
               >
                 {/* Image container */}
                 <div className="relative w-full h-56 bg-gray-50 overflow-hidden">
@@ -163,8 +183,12 @@ const ProductHighlight: React.FC = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center">
-          <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 max-w-md mx-auto">
+        <div className="text-center" data-aos="zoom-in">
+          <div
+            className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 max-w-md mx-auto"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
             <div className="mb-4">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
