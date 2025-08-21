@@ -88,10 +88,10 @@ const AddressPage: React.FC = () => {
 
       <AddressForm
         isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSuccess={handleFormSuccess}
         address={editAddress}
         isEditing={!!editAddress}
+        onClose={() => setShowForm(false)}
+        onSuccess={handleFormSuccess}
       />
     </div>
   );
