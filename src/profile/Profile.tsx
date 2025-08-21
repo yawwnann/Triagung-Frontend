@@ -2,20 +2,19 @@ import React, { useEffect, useState } from "react";
 import ApiConfig from "../lib/ApiConfig";
 import { useNavigate } from "react-router-dom";
 import Notification from "../common/components/Notification";
+import LogoutConfirmationModal from "../common/components/LogoutConfirmationModal";
+import BaseModal from "../common/components/BaseModal";
 import { isAxiosError } from "axios";
 import {
   Phone,
   FileText,
   User,
   Calendar,
-  CheckCircle,
   UserPlus,
   Edit3,
-  Key,
   MapPin,
   LogOut,
   AlertTriangle,
-  X,
 } from "lucide-react";
 
 interface UserProfile {
@@ -41,6 +40,10 @@ interface ProfileFormData {
   birth_date: string;
 }
 
+interface ProfileProps {
+  onLogout: () => void;
+}
+
 // Skeleton Components
 const ProfileSkeleton = () => (
   <div className="min-h-screen bg-gray-50 pt-32 pb-12">
@@ -64,7 +67,7 @@ const ProfileSkeleton = () => (
             <div className="lg:col-span-2 space-y-6">
               <div className="h-7 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
                     className="bg-gray-50 p-4 rounded-xl border border-gray-100"
@@ -96,7 +99,7 @@ const ProfileSkeleton = () => (
   </div>
 );
 
-const Profile: React.FC = () => {
+const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,6 +116,7 @@ const Profile: React.FC = () => {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -153,9 +157,12 @@ const Profile: React.FC = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_data");
-    navigate("/login");
+    setShowLogoutModal(true); // Tampilkan modal konfirmasi
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    onLogout(); // Panggil onLogout dari App.tsx untuk reset state navbar
   };
 
   const formatDate = (dateString: string | null | undefined) => {
@@ -230,11 +237,6 @@ const Profile: React.FC = () => {
           label: "Tanggal Lahir",
           value: formatDate(user.birth_date),
           icon: Calendar,
-        },
-        {
-          label: "Email Terverifikasi",
-          value: formatDate(user.email_verified_at),
-          icon: CheckCircle,
         },
         {
           label: "Akun Dibuat",
@@ -357,30 +359,6 @@ const Profile: React.FC = () => {
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900">Pengaturan</h2>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                        <Key className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <span className="font-medium text-gray-900">
-                        Ganti Password
-                      </span>
-                    </div>
-                    <svg
-                      className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </button>
-
                   <button
                     className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group"
                     onClick={() => navigate("/address")}
@@ -426,119 +404,98 @@ const Profile: React.FC = () => {
 
       {/* Modern Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Edit Profil
-                </h2>
-                <button
-                  onClick={handleCloseModal}
-                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-600" />
-                </button>
-              </div>
+        <BaseModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title="Edit Profil"
+          onSubmit={handleFormSubmit}
+          submitText="Simpan Perubahan"
+          cancelText="Batal"
+          showActions={true}
+          size="lg"
+        >
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nama
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Masukkan nama lengkap"
+              />
             </div>
 
-            <form
-              onSubmit={handleFormSubmit}
-              className="overflow-y-auto max-h-[calc(90vh-120px)]"
-            >
-              <div className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleFormChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Masukkan nama lengkap"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Telepon
+              </label>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleFormChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Masukkan nomor telepon"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Telepon
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleFormChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Masukkan nomor telepon"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bio
+              </label>
+              <textarea
+                name="bio"
+                rows={4}
+                value={formData.bio}
+                onChange={handleFormChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                placeholder="Ceritakan tentang diri Anda..."
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bio
-                  </label>
-                  <textarea
-                    name="bio"
-                    rows={4}
-                    value={formData.bio}
-                    onChange={handleFormChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-                    placeholder="Ceritakan tentang diri Anda..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tanggal Lahir
-                    </label>
-                    <input
-                      type="date"
-                      name="birth_date"
-                      value={formData.birth_date}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Jenis Kelamin
-                    </label>
-                    <select
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleFormChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    >
-                      <option value="Laki-laki">Laki-laki</option>
-                      <option value="Perempuan">Perempuan</option>
-                    </select>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tanggal Lahir
+                </label>
+                <input
+                  type="date"
+                  name="birth_date"
+                  value={formData.birth_date}
+                  onChange={handleFormChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
               </div>
 
-              <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-6 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Jenis Kelamin
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleFormChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Simpan Perubahan
-                </button>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
               </div>
-            </form>
+            </div>
           </div>
-        </div>
+        </BaseModal>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+      />
     </div>
   );
 };

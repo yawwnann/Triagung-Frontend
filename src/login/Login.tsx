@@ -49,10 +49,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         password: formData.password,
       });
       const data = response.data;
-      const token = data.user?.token;
+      const token = data.user?.token ?? data.token;
       if (token) {
         localStorage.setItem("access_token", token);
-        localStorage.setItem("user_data", JSON.stringify(data.user));
+        // Simpan data user jika tersedia; jika tidak, minimal simpan email untuk sesi
+        const userPayload = data.user ?? { email: formData.email };
+        localStorage.setItem("user_data", JSON.stringify(userPayload));
         onLoginSuccess();
       } else {
         setError("Login gagal. Token tidak ditemukan.");
@@ -67,11 +69,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         typeof error.response === "object" &&
         "data" in error.response
       ) {
-        const responseData = (error.response as { data?: { message?: string } })
-          .data;
-        if (responseData?.message) {
-          errorMessage = responseData.message;
-        }
+        const responseData = (
+          error.response as {
+            data?: { message?: string; error?: string };
+          }
+        ).data;
+        if (responseData?.message) errorMessage = responseData.message;
+        else if (responseData?.error) errorMessage = responseData.error;
       }
       setError(errorMessage);
     } finally {

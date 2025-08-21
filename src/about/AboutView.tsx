@@ -9,8 +9,8 @@ const AboutView: React.FC = () => {
     <div className="bg-gray-50">
       <HeroSection />
       <AboutSection />
-      <VisiMisiSection />
       <JourneySection />
+      <VisiMisiSection />
     </div>
   );
 };

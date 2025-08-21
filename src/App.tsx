@@ -153,7 +153,10 @@ const App: React.FC = () => {
             element={<Login onLoginSuccess={handleLoginSuccess} />}
           />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/profile"
+            element={<ProfilePage onLogout={handleLogout} />}
+          />
           <Route path="/address" element={<AddressPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />

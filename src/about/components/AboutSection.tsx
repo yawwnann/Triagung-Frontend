@@ -81,12 +81,20 @@ const AboutSection: React.FC = () => {
             viewport={{ once: true }}
             className="flex gap-4 mt-8"
           >
-            <button className="px-6 py-3 bg-[#1A1A19] hover:bg-[#3F3F44] text-white font-medium rounded-md transition-colors duration-300 shadow-lg hover:shadow-blue-500/20">
+            <a
+              href="https://wa.me/6285748057838"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-[#1A1A19] hover:bg-[#3F3F44] text-white font-medium rounded-md transition-colors duration-300 shadow-lg hover:shadow-blue-500/20 inline-block"
+            >
               Hubungi Kami
-            </button>
-            <button className="px-6 py-3 border border-[#1A1A19] text-black hover:text-white hover:bg-[#3F3F44] font-medium rounded-md transition-colors duration-300">
+            </a>
+            <a
+              href="/products"
+              className="px-6 py-3 border border-[#1A1A19] text-black hover:text-white hover:bg-[#3F3F44] font-medium rounded-md transition-colors duration-300"
+            >
               Lihat Produk
-            </button>
+            </a>
           </motion.div>
         </motion.div>
       </div>

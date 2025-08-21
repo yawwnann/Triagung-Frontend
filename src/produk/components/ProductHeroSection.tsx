@@ -10,7 +10,7 @@ const ProductHeroSection: React.FC = () => {
       icon: <BadgeCheck className="w-8 h-8 text-white" />,
     },
     {
-      value: "Harga Kompetitif",
+      value: "Harga Merakyat",
       icon: <DollarSign className="w-8 h-8 text-white" />,
     },
     {

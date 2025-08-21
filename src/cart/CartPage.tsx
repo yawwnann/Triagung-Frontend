@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiConfig from "../lib/ApiConfig";
-import { ArrowLeft, ShoppingBag, Tag, Heart } from "lucide-react";
+import { getImageUrl } from "../lib/ImageUrl";
+import { ArrowLeft, ShoppingBag, Tag, Heart, Trash2 } from "lucide-react";
 
 interface Product {
   id: number;
@@ -32,6 +33,7 @@ const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
 
   const { subtotal, total } = useMemo(() => {
     if (!cart?.items) {
@@ -78,6 +80,70 @@ const CartPage: React.FC = () => {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  const updateItemQuantity = async (itemId: number, newQty: number) => {
+    if (newQty < 1 || !cart) return;
+    // Optimistic update
+    const previousCart = cart;
+    const optimisticallyUpdated: Cart = {
+      ...cart,
+      items: cart.items.map((it) =>
+        it.id === itemId ? { ...it, quantity: newQty } : it
+      ),
+    };
+    setCart(optimisticallyUpdated);
+
+    try {
+      setUpdatingItemId(itemId);
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      await ApiConfig.patch(
+        `/cart/${itemId}`,
+        { quantity: newQty },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // success: keep optimistic state
+    } catch (err) {
+      console.error("Gagal mengubah jumlah item:", err);
+      // revert on error
+      setCart(previousCart);
+    } finally {
+      setUpdatingItemId(null);
+    }
+  };
+
+  const deleteItem = async (itemId: number) => {
+    if (!cart) return;
+    // Optimistic update
+    const previousCart = cart;
+    const optimisticallyUpdated: Cart | null = {
+      ...cart,
+      items: cart.items.filter((it) => it.id !== itemId),
+    };
+    setCart(optimisticallyUpdated);
+
+    try {
+      setUpdatingItemId(itemId);
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      await ApiConfig.delete(`/cart/${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // success: keep optimistic state
+    } catch (err) {
+      console.error("Gagal menghapus item:", err);
+      // revert on error
+      setCart(previousCart);
+    } finally {
+      setUpdatingItemId(null);
+    }
+  };
 
   if (loading) return <CartSkeleton />;
   if (error)
@@ -127,9 +193,9 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen pt-24 sm:pt-28">
       {/* Header Section */}
-      <div className="bg-white/80 backdrop-blur-sm mt-40  border-b border-blue-100 sticky top-0 z-50">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-blue-100  top-16 sm:top-20 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -153,7 +219,7 @@ const CartPage: React.FC = () => {
             <div className="hidden sm:flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-full">
               <Tag className="h-4 w-4 text-blue-600" />
               <span className="text-blue-700 font-semibold">
-                {cart.items.length} item{cart.items.length > 1 ? "" : ""}
+                {cart.items.length} {cart.items.length > 1 ? "item" : "item"}
               </span>
             </div>
           </div>
@@ -161,7 +227,7 @@ const CartPage: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Cart Items - Takes 8 columns on large screens */}
           <div className="lg:col-span-8">
@@ -189,20 +255,69 @@ const CartPage: React.FC = () => {
                   cart.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-6 hover:bg-blue-50/50 transition-all duration-300 relative"
+                      className="grid grid-cols-12 gap-4 p-4 sm:p-6 hover:bg-blue-50/50 transition-all duration-300 items-center"
                     >
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold text-gray-900 mb-1">
-                          {item.product_name}
-                        </span>
-                        <span className="text-blue-700 font-semibold">
-                          Rp {Number(item.price).toLocaleString("id-ID")}
-                        </span>
-                        <span className="text-gray-500">
-                          Jumlah: {item.quantity}
-                        </span>
+                      {/* Image */}
+                      <div className="col-span-3 sm:col-span-2">
+                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-blue-50 border border-blue-100">
+                          {item.product_image ? (
+                            <img
+                              src={getImageUrl(item.product_image)}
+                              alt={item.product_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-blue-300 text-sm">
+                              No Image
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right font-bold text-blue-700">
+                      {/* Product info and controls */}
+                      <div className="col-span-9 sm:col-span-7">
+                        <div className="flex flex-col">
+                          <span className="text-base sm:text-lg font-bold text-gray-900 mb-1">
+                            {item.product_name}
+                          </span>
+                          <span className="text-blue-700 font-semibold text-sm sm:text-base">
+                            Rp {Number(item.price).toLocaleString("id-ID")}
+                          </span>
+                          <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+                            <button
+                              className="px-2 py-1 rounded-lg border border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+                              onClick={() =>
+                                updateItemQuantity(item.id, item.quantity - 1)
+                              }
+                              disabled={
+                                updatingItemId === item.id || item.quantity <= 1
+                              }
+                            >
+                              -
+                            </button>
+                            <span className="min-w-[2rem] text-center font-semibold text-gray-800">
+                              {item.quantity}
+                            </span>
+                            <button
+                              className="px-2 py-1 rounded-lg border border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+                              onClick={() =>
+                                updateItemQuantity(item.id, item.quantity + 1)
+                              }
+                              disabled={updatingItemId === item.id}
+                            >
+                              +
+                            </button>
+                            <button
+                              className="ml-3 px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 flex items-center gap-1"
+                              onClick={() => deleteItem(item.id)}
+                              disabled={updatingItemId === item.id}
+                            >
+                              <Trash2 className="h-4 w-4" /> Hapus
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Subtotal */}
+                      <div className="col-span-12 sm:col-span-3 text-left sm:text-right font-bold text-blue-700 mt-2 sm:mt-0">
                         Subtotal: Rp{" "}
                         {(Number(item.price) * item.quantity).toLocaleString(
                           "id-ID"
@@ -240,7 +355,7 @@ const SummaryCard: React.FC<{
   const navigate = useNavigate();
 
   return (
-    <div className="sticky top-24">
+    <div className="sm:sticky sm:top-24">
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-blue-100">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 px-6 py-5">

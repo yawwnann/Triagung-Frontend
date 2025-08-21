@@ -358,7 +358,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
               disabled={currentPage === 1}
               className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-semibold disabled:opacity-50"
             >
-              Previous
+              Sebelumnya
             </button>
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
@@ -378,7 +378,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isAuthenticated }) => {
               disabled={currentPage === totalPages}
               className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-semibold disabled:opacity-50"
             >
-              Next
+              Berikutnya
             </button>
           </div>
         )}

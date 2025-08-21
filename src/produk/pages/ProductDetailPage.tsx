@@ -5,9 +5,7 @@ import {
   ArrowLeft,
   ShoppingCart,
   Tag,
-  Heart,
   Share2,
-  Star,
   Minus,
   Plus,
   ZoomIn,
@@ -63,9 +61,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("Deskripsi");
   const [notification, setNotification] = useState<{
     message: string;
     type: "success" | "error";
@@ -75,7 +71,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     null
   );
 
-  const tabs = ["Deskripsi", "Ulasan"];
+  // Tabs ulasan dihapus, hanya deskripsi
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -187,8 +183,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     );
   }
 
-  const rating = 4.5;
-  const reviewCount = 127;
+  // Rating/Ulasan dihapus
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -254,34 +249,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     }
   };
 
-  const renderStars = (ratingValue: number) => {
-    const stars = [];
-    const fullStars = Math.floor(ratingValue);
-    for (let i = 0; i < fullStars; i++)
-      stars.push(
-        <Star
-          fill="currentColor"
-          key={`full-${i}`}
-          className="text-yellow-400"
-          size={16}
-        />
-      );
-    if (ratingValue % 1 !== 0)
-      stars.push(
-        <Star
-          fill="currentColor"
-          key="half"
-          className="text-yellow-400"
-          size={16}
-        />
-      );
-    const remaining = 5 - Math.ceil(ratingValue);
-    for (let i = 0; i < remaining; i++)
-      stars.push(
-        <Star key={`empty-${i}`} className="text-gray-300" size={16} />
-      );
-    return stars;
-  };
+  // Komponen renderStars dihapus
 
   const rupiah = (number: unknown) => {
     return new Intl.NumberFormat("id-ID", {
@@ -382,19 +350,6 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   </h1>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-4">
                     <button
-                      onClick={() => setIsWishlisted(!isWishlisted)}
-                      className={`p-2.5 rounded-full transition-colors duration-200 ${
-                        isWishlisted
-                          ? "bg-red-100 text-red-500"
-                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                      }`}
-                    >
-                      <Heart
-                        fill={isWishlisted ? "currentColor" : "none"}
-                        size={20}
-                      />
-                    </button>
-                    <button
                       onClick={handleShare}
                       className="p-2.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors duration-200"
                     >
@@ -404,10 +359,6 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
 
                 <div className="flex items-center gap-4 mb-5 text-sm">
-                  <div className="flex items-center gap-1">
-                    {renderStars(rating)}
-                  </div>
-                  <span className="text-gray-500">({reviewCount} ulasan)</span>
                   <span className="flex items-center gap-1.5 bg-blue-50 text-blue-600 font-semibold px-2.5 py-1 rounded-full">
                     <Tag size={14} /> {product.kategori_produk.nama}
                   </span>
@@ -472,48 +423,10 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
         </div>
 
-        {/* Tabs Section */}
+        {/* Deskripsi saja (ulasan dihapus) */}
         <div className="mt-12 bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-2 sm:space-x-4">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "text-blue-600"
-                      : "text-gray-500 hover:text-gray-800"
-                  } relative rounded-t-lg py-3 px-4 sm:px-6 text-sm sm:text-base font-medium transition-colors`}
-                >
-                  {tab === "Ulasan" ? `${tab} (${reviewCount})` : tab}
-                  {activeTab === tab && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
-                      layoutId="underline"
-                    />
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
-          <div className="py-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="prose max-w-none text-gray-600"
-              >
-                {activeTab === "Deskripsi" ? (
-                  <p>{product.deskripsi}</p>
-                ) : (
-                  <p>Belum ada ulasan untuk produk ini.</p>
-                )}
-              </motion.div>
-            </AnimatePresence>
+          <div className="text-gray-700 leading-relaxed">
+            <p>{product.deskripsi}</p>
           </div>
         </div>
       </div>

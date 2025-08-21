@@ -28,9 +28,9 @@ const JourneySection: React.FC = () => {
             {[
               {
                 year: "2017",
-                title: "Avval Berdiri",
+                title: "Awal Berdiri",
                 description:
-                  "Tri Agung Jaya Material didirikan di Jakarta sebagai toko bahan bangunan lokal yang mengutamakan kualitas dan pelayanan cepat.",
+                  "Trijaya Agung Material didirikan di Mojokerto sebagai toko bahan bangunan lokal yang mengutamakan kualitas dan pelayanan cepat.",
                 icon: <Building className="w-8 h-8 text-white" />,
               },
               {
@@ -97,7 +97,7 @@ const JourneySection: React.FC = () => {
             Sejak Awal Berdiri
           </h3>
           <p className="text-gray-300">
-            PT. Tri Agung Jaya Material berkomitmen menjadi solusi terpercaya
+            PT. Trijaya Agung Material berkomitmen menjadi solusi terpercaya
             bagi kebutuhan material bangunan masyarakat Indonesia. Melalui
             inovasi, pelayanan terbaik, dan produk sesuai standar nasional, kami
             terus berkembang dari toko lokal menjadi penyedia distribusi

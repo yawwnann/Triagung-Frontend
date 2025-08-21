@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiConfig from "../lib/ApiConfig";
+import { getImageUrl } from "../lib/ImageUrl";
 import {
   MapPin,
   ShoppingBag,
@@ -88,7 +89,17 @@ const CheckoutPage: React.FC = () => {
           return;
         }
 
-        setCart(cartResponse.data);
+        // Transform cart data to ensure product_image is available
+        const transformedCart = {
+          ...cartResponse.data,
+          items:
+            cartResponse.data.items?.map((item: CartItem) => ({
+              ...item,
+              product_image: item.produk?.gambar || item.product_image || "",
+            })) || [],
+        };
+
+        setCart(transformedCart);
         setAddresses(addressResponse.data);
 
         const primaryAddress = addressResponse.data.find(
@@ -132,11 +143,21 @@ const CheckoutPage: React.FC = () => {
         }
       );
 
-      // Refresh cart data
+      // Refresh cart data with product_image transformation
       const cartResponse = await ApiConfig.get("/cart", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCart(cartResponse.data);
+
+      const refreshedCart = {
+        ...cartResponse.data,
+        items:
+          cartResponse.data.items?.map((item: CartItem) => ({
+            ...item,
+            product_image: item.produk?.gambar || item.product_image || "",
+          })) || [],
+      };
+
+      setCart(refreshedCart);
     } catch (err) {
       console.error("Failed to update shipping:", err);
     }
@@ -513,26 +534,40 @@ const ProductList: React.FC<{ items: CartItem[] }> = ({ items }) => (
     {items.map((item) => (
       <div
         key={item.id}
-        className="flex items-center p-4 border border-gray-200 rounded-xl hover:shadow-sm transition-all duration-200"
+        className="flex items-center p-4 border border-gray-200 rounded-xl hover:shadow-md hover:border-blue-300 transition-all duration-200 bg-gradient-to-r from-white to-blue-50"
       >
         <div className="relative">
-          <img
-            src={item.product_image || "/placeholder.png"}
-            alt={item.product_name}
-            className="w-20 h-20 rounded-lg object-cover shadow-sm"
-          />
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+          <div className="w-20 h-20 rounded-xl overflow-hidden bg-blue-50 border border-blue-100 shadow-sm">
+            {item.product_image ? (
+              <img
+                src={getImageUrl(item.product_image)}
+                alt={item.product_name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.png";
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-blue-300 text-xs">
+                No Image
+              </div>
+            )}
+          </div>
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md">
             {item.quantity}
           </div>
         </div>
         <div className="flex-1 ml-4">
-          <h3 className="font-medium text-gray-900 mb-1">
+          <h3 className="font-semibold text-gray-900 mb-1">
             {item.product_name}
           </h3>
-          <p className="text-sm text-gray-500">Jumlah: {item.quantity} item</p>
+          <p className="text-sm text-blue-600 font-medium">
+            Jumlah: {item.quantity} item
+          </p>
         </div>
         <div className="text-right">
-          <p className="font-semibold text-gray-900">
+          <p className="font-bold text-gray-900 text-lg">
             Rp{Number(item.price).toLocaleString("id-ID")}
           </p>
           <p className="text-sm text-gray-500">

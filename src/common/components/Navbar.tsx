@@ -18,6 +18,7 @@ import {
   useLocation,
   type NavigateFunction,
 } from "react-router-dom";
+import LogoutConfirmationModal from "./LogoutConfirmationModal";
 
 interface NavbarProps {
   className?: string;
@@ -72,6 +73,8 @@ export const Navbar = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(0);
+  const [isLogoutConfirmationModalOpen, setIsLogoutConfirmationModalOpen] =
+    useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -143,7 +146,7 @@ export const Navbar = ({
   };
 
   const handleLogout = () => {
-    onLogout(navigate);
+    setIsLogoutConfirmationModalOpen(true);
     setIsUserDropdownOpen(false);
     setIsMobileMenuOpen(false);
   };
@@ -305,7 +308,7 @@ export const Navbar = ({
             </NavbarButton>
           )}
           <NavbarButton
-            href="https://wa.me/6281358092166"
+            href="https://wa.me/6285748057838"
             target="_blank"
             rel="noopener noreferrer"
             variant="gradient"
@@ -510,6 +513,14 @@ export const Navbar = ({
           </div>
         </MobileNavMenu>
       </MobileNav>
+      <LogoutConfirmationModal
+        isOpen={isLogoutConfirmationModalOpen}
+        onClose={() => setIsLogoutConfirmationModalOpen(false)}
+        onConfirm={() => {
+          onLogout(navigate);
+          setIsLogoutConfirmationModalOpen(false);
+        }}
+      />
     </motion.div>
   );
 };
