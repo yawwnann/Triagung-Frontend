@@ -3,26 +3,26 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AOS from "aos";
 import "./App.css";
-import ApiConfig from "./lib/ApiConfig";
+import ApiConfig from "./shared/utils/ApiConfig";
 
 // Common Components
-import { Navbar } from "./common/components/Navbar";
-import FooterSection from "./common/components/FooterSection";
-import Notification from "./common/components/Notification";
+import { Navbar } from "./shared/components/Navbar";
+import FooterSection from "./shared/components/FooterSection";
+import Notification from "./shared/components/Notification";
 
 // Views
-import HomeView from "./home/HomeView";
-import AboutView from "./about/AboutView";
-import ProductView from "./produk/pages/ProductView";
-import Login from "./login/Login";
-import Register from "./register/Register";
-import ProfilePage from "./profile/Profile";
-import AddressPage from "./profile/AddressPage";
-import ProductDetailPage from "./produk/pages/ProductDetailPage";
-import CartPage from "./cart/CartPage";
-import CheckoutPage from "./checkout/CheckoutPage";
-import MyOrdersPage from "./profile/MyOrdersPage";
-import OrderDetailPage from "./profile/OrderDetailPage";
+import HomeView from "./features/home/HomeView";
+import AboutView from "./features/about/AboutView";
+import ProductView from "./features/products/pages/ProductView";
+import Login from "./features/auth/Login";
+import Register from "./features/auth/Register";
+import ProfilePage from "./features/profile/Profile";
+import AddressPage from "./features/profile/AddressPage";
+import ProductDetailPage from "./features/products/pages/ProductDetailPage";
+import CartPage from "./features/cart/CartPage";
+import CheckoutPage from "./features/checkout/CheckoutPage";
+import MyOrdersPage from "./features/profile/MyOrdersPage";
+import OrderDetailPage from "./features/profile/OrderDetailPage";
 
 interface User {
   name: string;
