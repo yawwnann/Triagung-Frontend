@@ -163,6 +163,34 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  // Fungsi untuk menangani payment failed
+  const handlePaymentFailed = async (orderId: number) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      // Call API to update payment status to failed
+      await ApiConfig.post(
+        `/orders/${orderId}/payment-failed`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Show message
+      setError("Pembayaran dibatalkan. Anda bisa mencoba checkout lagi.");
+
+      // Reset state
+      setIsPlacingOrder(false);
+    } catch (err) {
+      console.error("Error updating payment status:", err);
+      setError("Gagal memproses pembayaran. Silakan coba lagi.");
+      setIsPlacingOrder(false);
+    }
+  };
+
   // Fungsi untuk menangani proses pemesanan
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
@@ -184,13 +212,16 @@ const CheckoutPage: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const { snap_token } = response.data;
+      const { snap_token, order } = response.data;
       if (snap_token && window.snap) {
         window.snap.pay(snap_token, {
           onSuccess: () => navigate("/profile/orders"),
           onPending: () => navigate("/profile/orders"),
           onError: () => setError("Pembayaran gagal. Silakan coba lagi."),
-          onClose: () => setIsPlacingOrder(false),
+          onClose: async () => {
+            // User cancel payment - update status menjadi failed
+            await handlePaymentFailed(order.id);
+          },
         });
       } else {
         setError("Gagal memproses pembayaran. Token tidak valid.");

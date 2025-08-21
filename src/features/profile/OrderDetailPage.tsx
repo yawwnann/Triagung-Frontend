@@ -417,7 +417,6 @@ const OrderDetailPage: React.FC = () => {
                 </div>
               </div>
             )}
-
             {/* Daftar Produk */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-b">
@@ -535,7 +534,6 @@ const OrderDetailPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Metode Pembayaran */}
               {payment && (
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <h3 className="font-bold mb-4 text-gray-800">
@@ -586,14 +584,6 @@ const OrderDetailPage: React.FC = () => {
                             {order.resi}
                           </p>
                         </div>
-                        <a
-                          href={`https://cekresi.com/?noresi=${order.resi}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                        >
-                          Lacak Paket
-                        </a>
                       </div>
                       {order.shipping_courier && (
                         <div className="mt-2">
